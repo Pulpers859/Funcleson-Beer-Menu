@@ -39,7 +39,7 @@
       align-items: stretch;
       justify-content: stretch;
       padding: 0;
-      font-size: 20px; /* Slightly larger base font overall */
+      font-size: 20px;
     }
 
     .board {
@@ -342,39 +342,15 @@
     }
 
     @keyframes tickerMorphOut {
-      0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0px);
-      }
-      40% {
-        opacity: 0.8;
-        transform: translateY(-6px) scale(0.99);
-        filter: blur(2px);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-14px) scale(0.96);
-        filter: blur(6px);
-      }
+      0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+      40% { opacity: 0.8; transform: translateY(-6px) scale(0.99); filter: blur(2px); }
+      100% { opacity: 0; transform: translateY(-14px) scale(0.96); filter: blur(6px); }
     }
 
     @keyframes tickerMorphIn {
-      0% {
-        opacity: 0;
-        transform: translateY(18px) scale(1.03);
-        filter: blur(6px);
-      }
-      60% {
-        opacity: 1;
-        transform: translateY(-3px) scale(1.01);
-        filter: blur(2px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-        filter: blur(0px);
-      }
+      0% { opacity: 0; transform: translateY(18px) scale(1.03); filter: blur(6px); }
+      60% { opacity: 1; transform: translateY(-3px) scale(1.01); filter: blur(2px); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
     }
 
     /* === QR BLOCKS (single neon) === */
@@ -456,30 +432,130 @@
       }
     }
 
+    /* === NOW PLAYING WIDGET (bottom-right, above ticker) === */
+    .nowplaying-pip {
+      position: absolute;
+      right: 24px;
+      bottom: 260px; /* clears ticker */
+      width: 520px;
+      height: 300px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(5, 5, 9, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow:
+        0 0 10px rgba(0, 0, 0, 0.9),
+        0 0 14px rgba(79, 209, 255, 0.5);
+      z-index: 5;
+      display: flex;
+      gap: 14px;
+      padding: 14px;
+      align-items: center;
+    }
+
+    .np-art {
+      width: 150px;
+      height: 150px;
+      border-radius: 12px;
+      overflow: hidden;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: #050509;
+      box-shadow: 0 0 12px rgba(0,0,0,0.55);
+    }
+
+    .np-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .np-meta {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .np-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .np-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+    }
+
+    .np-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(244, 196, 48, 0.55);
+      background: rgba(244, 196, 48, 0.10);
+      color: var(--accent-yellow-soft);
+      font-size: 0.75rem;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .np-pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-yellow);
+      box-shadow: 0 0 10px rgba(244, 196, 48, 0.6);
+    }
+
+    .np-track {
+      font-size: 1.35rem;
+      font-weight: 650;
+      color: var(--text-main);
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .np-artist {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .np-time {
+      margin-top: 2px;
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      opacity: 0.85;
+    }
+
+    .np-fallback {
+      font-size: 1.05rem;
+      color: var(--text-soft);
+      opacity: 0.9;
+      line-height: 1.3;
+    }
+
     @media (max-width: 900px) {
-      .board {
-        max-height: none;
-      }
-
-      .board-main {
-        flex-direction: column;
-      }
-
-      .menu-column {
-        width: 100%;
-      }
-
-      .neon-qr img {
-        width: 44px;
-        height: 44px;
-      }
-      .neon-qr-text {
-        display: none;
-      }
-
-      .ticker-label {
-        display: none;
-      }
+      .ticker-label { display: none; }
+      .neon-qr img { width: 44px; height: 44px; }
+      .neon-qr-text { display: none; }
+      .board-main { flex-direction: column; }
+      .menu-column { width: 100%; }
+      .nowplaying-pip { display: none; }
     }
   </style>
 </head>
@@ -491,8 +567,6 @@
 
       <div class="header-right">
         <div class="header-qr-row">
-
-          <!-- Untappd Check-in QR -->
           <div class="neon-qr">
             <div class="neon-qr-inner">
               <div class="neon-qr-text">
@@ -502,7 +576,6 @@
               <img src="Funcleson-Funkatorium-QR-Code.PNG" alt="QR code to Untappd Venue" />
             </div>
           </div>
-
         </div>
 
         <span class="section-label">On Tap</span>
@@ -514,6 +587,31 @@
       <div class="menu-column" id="menuColumnLeft"></div>
       <div class="menu-column" id="menuColumnRight"></div>
     </main>
+
+    <!-- NOW PLAYING (Last.fm) -->
+    <div class="nowplaying-pip" id="nowPlayingWidget" aria-label="Now Playing">
+      <div class="np-art">
+        <img id="npArtImg" alt="Album art" src="" />
+      </div>
+
+      <div class="np-meta">
+        <div class="np-kicker">
+          <div class="np-label">Music</div>
+          <div class="np-pill" id="npPill">
+            <span class="np-pill-dot"></span>
+            <span id="npPillText">Loading…</span>
+          </div>
+        </div>
+
+        <div class="np-track" id="npTrack">Loading…</div>
+        <div class="np-artist" id="npArtist">—</div>
+        <div class="np-time" id="npTime">—</div>
+
+        <div class="np-fallback" id="npFallback" style="display:none;">
+          Waiting for scrobbles… start playing Apple Music and it’ll show up here.
+        </div>
+      </div>
+    </div>
 
     <footer class="board-footer">
       <div class="ticker-shell">
@@ -553,28 +651,20 @@
     function parseCSV(csv) {
       const lines = csv.trim().split("\n");
       if (lines.length < 2) return [];
-
       const headers = lines[0].split(",").map(h => h.trim());
       const beers = [];
-
       for (let i = 1; i < lines.length; i++) {
         const row = lines[i].split(",").map(c => c.trim());
         if (row.length === 1 && row[0] === "") continue;
         const obj = {};
-        headers.forEach((h, idx) => {
-          obj[h] = row[idx] || "";
-        });
+        headers.forEach((h, idx) => { obj[h] = row[idx] || ""; });
         beers.push(obj);
       }
       return beers;
     }
 
     async function fetchBeersFromSheet() {
-      if (!GOOGLE_SHEET_CSV_URL) {
-        console.warn("Google Sheet CSV URL is not set.");
-        return;
-      }
-
+      if (!GOOGLE_SHEET_CSV_URL) return;
       try {
         const res = await fetch(GOOGLE_SHEET_CSV_URL);
         const text = await res.text();
@@ -595,14 +685,8 @@
 
       beers = beers.filter((beer) => {
         const activeStr = (beer.active || beer.Active || "").toString().toLowerCase();
-        const isActive =
-          activeStr === "" ||
-          activeStr === "true" ||
-          activeStr === "yes" ||
-          activeStr === "y" ||
-          activeStr === "1";
+        const isActive = activeStr === "" || activeStr === "true" || activeStr === "yes" || activeStr === "y" || activeStr === "1";
         if (!isActive) return false;
-
         if (CATEGORY_FILTERS.length === 0) return true;
         const cat = (beer.category || beer.Category || "").toString().trim();
         return CATEGORY_FILTERS.includes(cat);
@@ -660,8 +744,7 @@
           }
 
           const featStr = (beer.featured || beer.Featured || "").toString().toLowerCase();
-          const isFeatured =
-            featStr === "true" || featStr === "yes" || featStr === "y" || featStr === "1";
+          const isFeatured = featStr === "true" || featStr === "yes" || featStr === "y" || featStr === "1";
 
           if (isFeatured) {
             const feat = document.createElement("span");
@@ -712,7 +795,7 @@
       }
     }
 
-    // ========= TICKER CONFIG =========
+    // ========= TICKER CONFIG (Untappd) =========
     const VENUE_RSS_URL = "https://untappd.com/rss/venue/9899874";
     const REFRESH_MS = 60000;
     const MAX_AGE_HOURS = 7000;
@@ -810,7 +893,6 @@
 
       beer = beerCandidate;
       brewery = breweryCandidate;
-
       return { user, beer, brewery };
     }
 
@@ -827,7 +909,6 @@
       }
 
       const recentItems = items.filter((item) => isRecentEnough(item.pubDate));
-
       if (!recentItems.length) {
         renderEmptyTicker("No check-ins in the selected time window.");
         return;
@@ -899,23 +980,15 @@
         newCard.classList.add("ticker-card--animate-in");
       });
 
-      oldCard.addEventListener(
-        "animationend",
-        () => {
-          if (oldCard.parentNode === tickerTrack) {
-            tickerTrack.removeChild(oldCard);
-          }
-        },
-        { once: true }
-      );
+      oldCard.addEventListener("animationend", () => {
+        if (oldCard.parentNode === tickerTrack) {
+          tickerTrack.removeChild(oldCard);
+        }
+      }, { once: true });
 
-      newCard.addEventListener(
-        "animationend",
-        () => {
-          newCard.classList.remove("ticker-card--incoming", "ticker-card--animate-in");
-        },
-        { once: true }
-      );
+      newCard.addEventListener("animationend", () => {
+        newCard.classList.remove("ticker-card--incoming", "ticker-card--animate-in");
+      }, { once: true });
     }
 
     async function fetchCheckins() {
@@ -932,9 +1005,7 @@
         }
 
         const data = await res.json();
-        const items = data.items || [];
-
-        buildTicker(items);
+        buildTicker(data.items || []);
         statusTime.textContent = new Date().toLocaleTimeString();
       } catch (err) {
         console.error(err);
@@ -947,9 +1018,107 @@
       setInterval(fetchCheckins, REFRESH_MS);
     }
 
+    // ========= NOW PLAYING (Last.fm via RSS) =========
+    const LASTFM_USER = "funcleson";
+    const LASTFM_RSS_URL = `https://lfm.xiffy.nl/${LASTFM_USER}`;
+    const LASTFM_REFRESH_MS = 15000;
+
+    const npArtImg   = document.getElementById("npArtImg");
+    const npTrack    = document.getElementById("npTrack");
+    const npArtist   = document.getElementById("npArtist");
+    const npTime     = document.getElementById("npTime");
+    const npPillText = document.getElementById("npPillText");
+    const npFallback = document.getElementById("npFallback");
+
+    function parseArtistTrack(title) {
+      if (!title) return { artist: "", track: "" };
+
+      // Try common separators first
+      const seps = [" — ", " – ", " - ", " —", " –", " -"];
+      for (const sep of seps) {
+        if (title.includes(sep)) {
+          const parts = title.split(sep).map(s => s.trim()).filter(Boolean);
+          if (parts.length >= 2) {
+            return { artist: parts[0], track: parts.slice(1).join(" - ") };
+          }
+        }
+      }
+      // Fallback: unknown format
+      return { artist: "", track: title.trim() };
+    }
+
+    function extractImage(item) {
+      // rss2json may expose: enclosure.link, thumbnail, or media:content
+      if (item && item.enclosure && item.enclosure.link) return item.enclosure.link;
+      if (item && item.thumbnail) return item.thumbnail;
+
+      // attempt to find an image URL in description (last resort)
+      const html = (item && item.description) ? String(item.description) : "";
+      const m = html.match(/https?:\/\/[^"\s>]+?\.(jpg|jpeg|png|webp)/i);
+      if (m) return m[0];
+
+      return "";
+    }
+
+    async function fetchLastFmNowPlaying() {
+      try {
+        const rssUrl = encodeURIComponent(LASTFM_RSS_URL);
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+
+        const res = await fetch(apiUrl);
+        if (!res.ok) {
+          npPillText.textContent = "Offline";
+          return;
+        }
+
+        const data = await res.json();
+        const items = data.items || [];
+        if (!items.length) {
+          npFallback.style.display = "block";
+          npTrack.textContent = "—";
+          npArtist.textContent = "—";
+          npTime.textContent = "";
+          npPillText.textContent = "Waiting";
+          return;
+        }
+
+        const latest = items[0];
+        const { artist, track } = parseArtistTrack(latest.title);
+
+        const imgUrl = extractImage(latest);
+        if (imgUrl) npArtImg.src = imgUrl;
+
+        npTrack.textContent = track || "—";
+        npArtist.textContent = artist || "—";
+
+        // Determine “Now Playing / Just Played” feel
+        const then = new Date(latest.pubDate);
+        const now = new Date();
+        const diffSec = isNaN(then) ? null : Math.floor((now - then) / 1000);
+
+        if (diffSec !== null && diffSec <= 240) {
+          npPillText.textContent = "Now Playing";
+        } else {
+          npPillText.textContent = "Recently Played";
+        }
+
+        npTime.textContent = latest.pubDate ? ("Updated " + timeAgo(latest.pubDate)) : "";
+        npFallback.style.display = "none";
+      } catch (e) {
+        console.error("Last.fm widget error:", e);
+        npPillText.textContent = "Error";
+      }
+    }
+
+    function startLastFmWidget() {
+      fetchLastFmNowPlaying();
+      setInterval(fetchLastFmNowPlaying, LASTFM_REFRESH_MS);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       fetchBeersFromSheet();
       startAutoRefresh();
+      startLastFmWidget();
     });
   </script>
 </body>
