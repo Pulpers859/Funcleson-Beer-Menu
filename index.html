@@ -642,529 +642,562 @@
   </div>
 
   <script>
-    // ========= TAP LIST VIA GOOGLE SHEETS =========
-    const GOOGLE_SHEET_CSV_URL =
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8XJ2EmSMTcR_XrbIegnEEZvGCmix6h9EnEgQi-QwUpIM0JQ0GkdtbiD1X5V29gdG_S81hKd3Eh6QA/pub?output=csv";
+  // ========= TAP LIST VIA GOOGLE SHEETS =========
+  const GOOGLE_SHEET_CSV_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8XJ2EmSMTcR_XrbIegnEEZvGCmix6h9EnEgQi-QwUpIM0JQ0GkdtbiD1X5V29gdG_S81hKd3Eh6QA/pub?output=csv";
 
-    const CATEGORY_FILTERS = [];
-    let BEERS = [];
+  const CATEGORY_FILTERS = [];
+  let BEERS = [];
 
-    const boardUpdated = document.getElementById("boardUpdated");
+  const boardUpdated = document.getElementById("boardUpdated");
 
-    function parseCSV(csv) {
-      const lines = csv.trim().split("\n");
-      if (lines.length < 2) return [];
-      const headers = lines[0].split(",").map(h => h.trim());
-      const beers = [];
-      for (let i = 1; i < lines.length; i++) {
-        const row = lines[i].split(",").map(c => c.trim());
-        if (row.length === 1 && row[0] === "") continue;
-        const obj = {};
-        headers.forEach((h, idx) => { obj[h] = row[idx] || ""; });
-        beers.push(obj);
-      }
-      return beers;
+  function parseCSV(csv) {
+    const lines = csv.trim().split("\n");
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(",").map(h => h.trim());
+    const beers = [];
+    for (let i = 1; i < lines.length; i++) {
+      const row = lines[i].split(",").map(c => c.trim());
+      if (row.length === 1 && row[0] === "") continue;
+      const obj = {};
+      headers.forEach((h, idx) => { obj[h] = row[idx] || ""; });
+      beers.push(obj);
     }
+    return beers;
+  }
 
-    async function fetchBeersFromSheet() {
-      if (!GOOGLE_SHEET_CSV_URL) return;
-      try {
-        const res = await fetch(GOOGLE_SHEET_CSV_URL);
-        const text = await res.text();
-        BEERS = parseCSV(text);
-        buildMenu();
-      } catch (e) {
-        console.error("Error loading beer sheet:", e);
-      }
+  async function fetchBeersFromSheet() {
+    if (!GOOGLE_SHEET_CSV_URL) return;
+    try {
+      // cache-bust + no-store (helps FireTV/Yodeck)
+      const url = GOOGLE_SHEET_CSV_URL + "&_=" + Date.now();
+      const res = await fetch(url, { cache: "no-store" });
+      const text = await res.text();
+      BEERS = parseCSV(text);
+      buildMenu();
+    } catch (e) {
+      console.error("Error loading beer sheet:", e);
     }
+  }
 
-    function buildMenu() {
-      const leftCol = document.getElementById("menuColumnLeft");
-      const rightCol = document.getElementById("menuColumnRight");
-      leftCol.innerHTML = "";
-      rightCol.innerHTML = "";
+  function buildMenu() {
+    const leftCol = document.getElementById("menuColumnLeft");
+    const rightCol = document.getElementById("menuColumnRight");
+    leftCol.innerHTML = "";
+    rightCol.innerHTML = "";
 
-      let beers = [...BEERS];
+    let beers = [...BEERS];
 
-      beers = beers.filter((beer) => {
-        const activeStr = (beer.active || beer.Active || "").toString().toLowerCase();
-        const isActive = activeStr === "" || activeStr === "true" || activeStr === "yes" || activeStr === "y" || activeStr === "1";
-        if (!isActive) return false;
-        if (CATEGORY_FILTERS.length === 0) return true;
+    beers = beers.filter((beer) => {
+      const activeStr = (beer.active || beer.Active || "").toString().toLowerCase();
+      const isActive = activeStr === "" || activeStr === "true" || activeStr === "yes" || activeStr === "y" || activeStr === "1";
+      if (!isActive) return false;
+      if (CATEGORY_FILTERS.length === 0) return true;
+      const cat = (beer.category || beer.Category || "").toString().trim();
+      return CATEGORY_FILTERS.includes(cat);
+    });
+
+    beers.sort((a, b) => {
+      const ca = (a.category || a.Category || "").toString();
+      const cb = (b.category || b.Category || "").toString();
+      if (ca < cb) return -1;
+      if (ca > cb) return 1;
+      const ta = parseInt(a.tap || a.Tap || "0", 10) || 0;
+      const tb = parseInt(b.tap || b.Tap || "0", 10) || 0;
+      return ta - tb;
+    });
+
+    const mid = Math.ceil(beers.length / 2);
+    const leftBeers = beers.slice(0, mid);
+    const rightBeers = beers.slice(mid);
+
+    function renderColumn(list, container) {
+      let lastCategory = null;
+
+      list.forEach((beer) => {
         const cat = (beer.category || beer.Category || "").toString().trim();
-        return CATEGORY_FILTERS.includes(cat);
-      });
 
-      beers.sort((a, b) => {
-        const ca = (a.category || a.Category || "").toString();
-        const cb = (b.category || b.Category || "").toString();
-        if (ca < cb) return -1;
-        if (ca > cb) return 1;
-        const ta = parseInt(a.tap || a.Tap || "0", 10) || 0;
-        const tb = parseInt(b.tap || b.Tap || "0", 10) || 0;
-        return ta - tb;
-      });
-
-      const mid = Math.ceil(beers.length / 2);
-      const leftBeers = beers.slice(0, mid);
-      const rightBeers = beers.slice(mid);
-
-      function renderColumn(list, container) {
-        let lastCategory = null;
-
-        list.forEach((beer) => {
-          const cat = (beer.category || beer.Category || "").toString().trim();
-
-          if (cat && cat !== lastCategory) {
-            const header = document.createElement("div");
-            header.className = "section-label";
-            header.textContent = cat;
-            container.appendChild(header);
-            lastCategory = cat;
-          }
-
-          const row = document.createElement("div");
-          row.className = "beer-row";
-
-          const top = document.createElement("div");
-          top.className = "beer-top";
-
-          const name = document.createElement("div");
-          name.className = "beer-name";
-          name.textContent = beer.name || "";
-
-          const rightMeta = document.createElement("div");
-          rightMeta.style.display = "flex";
-          rightMeta.style.alignItems = "center";
-          rightMeta.style.gap = "6px";
-
-          const tapVal = beer.tap || beer.Tap || "";
-          if (tapVal) {
-            const tap = document.createElement("span");
-            tap.className = "tap-badge";
-            tap.textContent = `Tap ${tapVal}`;
-            rightMeta.appendChild(tap);
-          }
-
-          const featStr = (beer.featured || beer.Featured || "").toString().toLowerCase();
-          const isFeatured = featStr === "true" || featStr === "yes" || featStr === "y" || featStr === "1";
-
-          if (isFeatured) {
-            const feat = document.createElement("span");
-            feat.className = "featured-tag";
-            feat.textContent = "Featured";
-            rightMeta.appendChild(feat);
-          }
-
-          top.appendChild(name);
-          top.appendChild(rightMeta);
-
-          const bottom = document.createElement("div");
-          bottom.className = "beer-bottom";
-
-          const style = document.createElement("div");
-          style.className = "beer-style";
-          style.textContent = beer.style || beer.brewery || "";
-
-          const price = document.createElement("div");
-          price.className = "beer-price";
-          price.textContent = beer.price || "";
-
-          bottom.appendChild(style);
-          bottom.appendChild(price);
-
-          const metaInline = document.createElement("div");
-          metaInline.className = "beer-meta-inline";
-          const bits = [];
-          if (beer.abv) bits.push(beer.abv);
-          if (beer.ibu) bits.push(beer.ibu);
-          if (beer.pour) bits.push(beer.pour);
-          metaInline.textContent = bits.join(" · ");
-
-          row.appendChild(top);
-          if (bits.length) row.appendChild(metaInline);
-          row.appendChild(bottom);
-
-          container.appendChild(row);
-        });
-      }
-
-      renderColumn(leftBeers, leftCol);
-      renderColumn(rightBeers, rightCol);
-
-      if (boardUpdated) {
-        const now = new Date();
-        boardUpdated.textContent = "Updated " + now.toLocaleTimeString();
-      }
-    }
-
-    // ========= TICKER CONFIG (Untappd) =========
-    const VENUE_RSS_URL = "https://untappd.com/rss/venue/9899874";
-    const REFRESH_MS = 60000;
-    const MAX_AGE_HOURS = 7000;
-
-    const tickerTrack = document.getElementById("tickerTrack");
-    const statusTime = document.getElementById("statusTime");
-
-    let tickerData = [];
-    let tickerIndex = 0;
-    let tickerRotationTimer = null;
-
-    function timeAgo(dateString) {
-      const then = new Date(dateString);
-      if (isNaN(then)) return "";
-      const now = new Date();
-      const diffMs = now - then;
-      const minutes = Math.floor(diffMs / 60000);
-      const hours = Math.floor(minutes / 60);
-
-      if (minutes < 1) return "just now";
-      if (minutes < 60) return `${minutes} min ago`;
-      if (hours < 24) return `${hours} hr${hours !== 1 ? "s" : ""} ago`;
-      const days = Math.floor(hours / 24);
-      return `${days} day${days !== 1 ? "s" : ""} ago`;
-    }
-
-    function isRecentEnough(dateString) {
-      const then = new Date(dateString);
-      if (isNaN(then)) return false;
-      const now = new Date();
-      const diffMs = now - then;
-      const hours = diffMs / (1000 * 60 * 60);
-      return hours <= MAX_AGE_HOURS;
-    }
-
-    function cleanBeerName(name) {
-      if (!name) return "";
-      return name.replace(/^(a |an )/i, "").trim();
-    }
-
-    function parseRating(item) {
-      const raw = (item.description || "") + " " + (item.content || "");
-      const text = raw.replace(/<[^>]+>/g, " ");
-
-      let match = text.match(/\(([0-9.]+)\s*\/\s*5/i);
-      if (match) return match[1];
-
-      match = text.match(/([0-9.]+)\s*\/\s*5/i);
-      if (match) return match[1];
-
-      match = text.match(/Rating:\s*([0-9.]+)/i);
-      if (match) return match[1];
-
-      return "";
-    }
-
-    function parseUntappdTitle(title) {
-      let user = "";
-      let beer = "";
-      let brewery = "";
-
-      if (!title) return { user, beer, brewery };
-
-      let base = title;
-      const atIndex = base.toLowerCase().lastIndexOf(" at ");
-      if (atIndex !== -1) base = base.slice(0, atIndex);
-
-      let parts = base.split(" is drinking ");
-      if (parts.length === 1) parts = base.split(" drank ");
-
-      let rest = "";
-      if (parts.length > 1) {
-        user = parts[0].trim();
-        rest = parts[1].trim();
-      } else {
-        rest = base.trim();
-      }
-
-      let beerCandidate = rest;
-      let breweryCandidate = "";
-
-      const bySplit = rest.split(" by ");
-      if (bySplit.length > 1) {
-        beerCandidate = bySplit[0].trim();
-        breweryCandidate = bySplit.slice(1).join(" by ").trim();
-      }
-
-      if (!breweryCandidate) {
-        const parenMatch = beerCandidate.match(/\(([^)]+)\)\s*$/);
-        if (parenMatch) {
-          breweryCandidate = parenMatch[1].trim();
-          beerCandidate = beerCandidate.replace(/\s*\([^)]+\)\s*$/, "").trim();
+        if (cat && cat !== lastCategory) {
+          const header = document.createElement("div");
+          header.className = "section-label";
+          header.textContent = cat;
+          container.appendChild(header);
+          lastCategory = cat;
         }
-      }
 
-      beer = beerCandidate;
-      brewery = breweryCandidate;
-      return { user, beer, brewery };
+        const row = document.createElement("div");
+        row.className = "beer-row";
+
+        const top = document.createElement("div");
+        top.className = "beer-top";
+
+        const name = document.createElement("div");
+        name.className = "beer-name";
+        name.textContent = beer.name || "";
+
+        const rightMeta = document.createElement("div");
+        rightMeta.style.display = "flex";
+        rightMeta.style.alignItems = "center";
+        rightMeta.style.gap = "6px";
+
+        const tapVal = beer.tap || beer.Tap || "";
+        if (tapVal) {
+          const tap = document.createElement("span");
+          tap.className = "tap-badge";
+          tap.textContent = `Tap ${tapVal}`;
+          rightMeta.appendChild(tap);
+        }
+
+        const featStr = (beer.featured || beer.Featured || "").toString().toLowerCase();
+        const isFeatured = featStr === "true" || featStr === "yes" || featStr === "y" || featStr === "1";
+
+        if (isFeatured) {
+          const feat = document.createElement("span");
+          feat.className = "featured-tag";
+          feat.textContent = "Featured";
+          rightMeta.appendChild(feat);
+        }
+
+        top.appendChild(name);
+        top.appendChild(rightMeta);
+
+        const bottom = document.createElement("div");
+        bottom.className = "beer-bottom";
+
+        const style = document.createElement("div");
+        style.className = "beer-style";
+        style.textContent = beer.style || beer.brewery || "";
+
+        const price = document.createElement("div");
+        price.className = "beer-price";
+        price.textContent = beer.price || "";
+
+        bottom.appendChild(style);
+        bottom.appendChild(price);
+
+        const metaInline = document.createElement("div");
+        metaInline.className = "beer-meta-inline";
+        const bits = [];
+        if (beer.abv) bits.push(beer.abv);
+        if (beer.ibu) bits.push(beer.ibu);
+        if (beer.pour) bits.push(beer.pour);
+        metaInline.textContent = bits.join(" · ");
+
+        row.appendChild(top);
+        if (bits.length) row.appendChild(metaInline);
+        row.appendChild(bottom);
+
+        container.appendChild(row);
+      });
     }
 
-    function buildTicker(items) {
+    renderColumn(leftBeers, leftCol);
+    renderColumn(rightBeers, rightCol);
+
+    if (boardUpdated) {
+      const now = new Date();
+      boardUpdated.textContent = "Updated " + now.toLocaleTimeString();
+    }
+  }
+
+  // ========= TICKER CONFIG (Untappd) =========
+  const VENUE_RSS_URL = "https://untappd.com/rss/venue/9899874";
+  const REFRESH_MS = 60000;
+  const MAX_AGE_HOURS = 7000;
+
+  const tickerTrack = document.getElementById("tickerTrack");
+  const statusTime = document.getElementById("statusTime");
+
+  let tickerData = [];
+  let tickerIndex = 0;
+  let tickerRotationTimer = null;
+
+  function timeAgo(dateString) {
+    const then = new Date(dateString);
+    if (isNaN(then)) return "";
+    const now = new Date();
+    const diffMs = now - then;
+    const minutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(minutes / 60);
+
+    if (minutes < 1) return "just now";
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours < 24) return `${hours} hr${hours !== 1 ? "s" : ""} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days !== 1 ? "s" : ""} ago`;
+  }
+
+  function isRecentEnough(dateString) {
+    const then = new Date(dateString);
+    if (isNaN(then)) return false;
+    const now = new Date();
+    const diffMs = now - then;
+    const hours = diffMs / (1000 * 60 * 60);
+    return hours <= MAX_AGE_HOURS;
+  }
+
+  function cleanBeerName(name) {
+    if (!name) return "";
+    return name.replace(/^(a |an )/i, "").trim();
+  }
+
+  function parseRating(item) {
+    const raw = (item.description || "") + " " + (item.content || "");
+    const text = raw.replace(/<[^>]+>/g, " ");
+
+    let match = text.match(/\(([0-9.]+)\s*\/\s*5/i);
+    if (match) return match[1];
+
+    match = text.match(/([0-9.]+)\s*\/\s*5/i);
+    if (match) return match[1];
+
+    match = text.match(/Rating:\s*([0-9.]+)/i);
+    if (match) return match[1];
+
+    return "";
+  }
+
+  function parseUntappdTitle(title) {
+    let user = "";
+    let beer = "";
+    let brewery = "";
+
+    if (!title) return { user, beer, brewery };
+
+    let base = title;
+    const atIndex = base.toLowerCase().lastIndexOf(" at ");
+    if (atIndex !== -1) base = base.slice(0, atIndex);
+
+    let parts = base.split(" is drinking ");
+    if (parts.length === 1) parts = base.split(" drank ");
+
+    let rest = "";
+    if (parts.length > 1) {
+      user = parts[0].trim();
+      rest = parts[1].trim();
+    } else {
+      rest = base.trim();
+    }
+
+    let beerCandidate = rest;
+    let breweryCandidate = "";
+
+    const bySplit = rest.split(" by ");
+    if (bySplit.length > 1) {
+      beerCandidate = bySplit[0].trim();
+      breweryCandidate = bySplit.slice(1).join(" by ").trim();
+    }
+
+    if (!breweryCandidate) {
+      const parenMatch = beerCandidate.match(/\(([^)]+)\)\s*$/);
+      if (parenMatch) {
+        breweryCandidate = parenMatch[1].trim();
+        beerCandidate = beerCandidate.replace(/\s*\([^)]+\)\s*$/, "").trim();
+      }
+    }
+
+    beer = beerCandidate;
+    brewery = breweryCandidate;
+    return { user, beer, brewery };
+  }
+
+  function buildTicker(items) {
+    tickerTrack.innerHTML = "";
+    if (tickerRotationTimer) {
+      clearInterval(tickerRotationTimer);
+      tickerRotationTimer = null;
+    }
+
+    if (!items || !items.length) {
+      renderEmptyTicker("No recent check-ins.");
+      return;
+    }
+
+    const recentItems = items.filter((item) => isRecentEnough(item.pubDate));
+    if (!recentItems.length) {
+      renderEmptyTicker("No check-ins in the selected time window.");
+      return;
+    }
+
+    const maxItems = Math.min(recentItems.length, 20);
+    tickerData = recentItems.slice(0, maxItems);
+    tickerIndex = 0;
+
+    renderTickerCard(tickerData[tickerIndex], true);
+
+    if (tickerData.length > 1) {
+      tickerRotationTimer = setInterval(() => {
+        tickerIndex = (tickerIndex + 1) % tickerData.length;
+        renderTickerCard(tickerData[tickerIndex], false);
+      }, 8000);
+    }
+  }
+
+  function renderEmptyTicker(message) {
+    const card = document.createElement("div");
+    card.className = "ticker-card";
+    card.innerHTML = `
+      <div class="ticker-line-main">
+        <span class="ticker-empty">${message}</span>
+      </div>
+    `;
+    tickerTrack.appendChild(card);
+  }
+
+  function renderTickerCard(item, immediate) {
+    const { user, beer, brewery } = parseUntappdTitle(item.title);
+    const cleanBeer = cleanBeerName(beer);
+    const rating = parseRating(item);
+    const time = timeAgo(item.pubDate);
+
+    const oldCard = tickerTrack.querySelector(".ticker-card");
+
+    const newCard = document.createElement("div");
+    newCard.className = "ticker-card";
+    newCard.innerHTML = `
+      <div class="ticker-line-main">
+        <span class="ticker-user">${user || "Someone"}</span>
+        ${cleanBeer ? '<span class="ticker-separator">·</span>' : ""}
+        ${
+          cleanBeer
+            ? `<span class="ticker-beer">${cleanBeer}${brewery ? " by " + brewery : ""}</span>`
+            : ""
+        }
+      </div>
+      <div class="ticker-line-sub">
+        ${rating ? `<span class="ticker-rating">Rated ${rating}/5</span>` : ""}
+        ${rating && time ? '<span class="ticker-separator">·</span>' : ""}
+        ${time ? `<span class="ticker-time">${time}</span>` : ""}
+      </div>
+    `;
+
+    if (immediate || !oldCard) {
       tickerTrack.innerHTML = "";
-      if (tickerRotationTimer) {
-        clearInterval(tickerRotationTimer);
-        tickerRotationTimer = null;
-      }
-
-      if (!items || !items.length) {
-        renderEmptyTicker("No recent check-ins.");
-        return;
-      }
-
-      const recentItems = items.filter((item) => isRecentEnough(item.pubDate));
-      if (!recentItems.length) {
-        renderEmptyTicker("No check-ins in the selected time window.");
-        return;
-      }
-
-      const maxItems = Math.min(recentItems.length, 20);
-      tickerData = recentItems.slice(0, maxItems);
-      tickerIndex = 0;
-
-      renderTickerCard(tickerData[tickerIndex], true);
-
-      if (tickerData.length > 1) {
-        tickerRotationTimer = setInterval(() => {
-          tickerIndex = (tickerIndex + 1) % tickerData.length;
-          renderTickerCard(tickerData[tickerIndex], false);
-        }, 8000);
-      }
-    }
-
-    function renderEmptyTicker(message) {
-      const card = document.createElement("div");
-      card.className = "ticker-card";
-      card.innerHTML = `
-        <div class="ticker-line-main">
-          <span class="ticker-empty">${message}</span>
-        </div>
-      `;
-      tickerTrack.appendChild(card);
-    }
-
-    function renderTickerCard(item, immediate) {
-      const { user, beer, brewery } = parseUntappdTitle(item.title);
-      const cleanBeer = cleanBeerName(beer);
-      const rating = parseRating(item);
-      const time = timeAgo(item.pubDate);
-
-      const oldCard = tickerTrack.querySelector(".ticker-card");
-
-      const newCard = document.createElement("div");
-      newCard.className = "ticker-card";
-      newCard.innerHTML = `
-        <div class="ticker-line-main">
-          <span class="ticker-user">${user || "Someone"}</span>
-          ${cleanBeer ? '<span class="ticker-separator">·</span>' : ""}
-          ${
-            cleanBeer
-              ? `<span class="ticker-beer">${cleanBeer}${brewery ? " by " + brewery : ""}</span>`
-              : ""
-          }
-        </div>
-        <div class="ticker-line-sub">
-          ${rating ? `<span class="ticker-rating">Rated ${rating}/5</span>` : ""}
-          ${rating && time ? '<span class="ticker-separator">·</span>' : ""}
-          ${time ? `<span class="ticker-time">${time}</span>` : ""}
-        </div>
-      `;
-
-      if (immediate || !oldCard) {
-        tickerTrack.innerHTML = "";
-        tickerTrack.appendChild(newCard);
-        return;
-      }
-
-      newCard.classList.add("ticker-card--incoming");
       tickerTrack.appendChild(newCard);
-
-      requestAnimationFrame(() => {
-        oldCard.classList.add("ticker-card--outgoing");
-        newCard.classList.add("ticker-card--animate-in");
-      });
-
-      oldCard.addEventListener("animationend", () => {
-        if (oldCard.parentNode === tickerTrack) {
-          tickerTrack.removeChild(oldCard);
-        }
-      }, { once: true });
-
-      newCard.addEventListener("animationend", () => {
-        newCard.classList.remove("ticker-card--incoming", "ticker-card--animate-in");
-      }, { once: true });
+      return;
     }
 
-    async function fetchCheckins() {
-      try {
-        statusTime.textContent = "Updating…";
+    newCard.classList.add("ticker-card--incoming");
+    tickerTrack.appendChild(newCard);
 
-        const rssUrl = encodeURIComponent(VENUE_RSS_URL);
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+    requestAnimationFrame(() => {
+      oldCard.classList.add("ticker-card--outgoing");
+      newCard.classList.add("ticker-card--animate-in");
+    });
 
-        const res = await fetch(apiUrl);
-        if (!res.ok) {
-          statusTime.textContent = "Feed error";
-          return;
-        }
+    oldCard.addEventListener("animationend", () => {
+      if (oldCard.parentNode === tickerTrack) tickerTrack.removeChild(oldCard);
+    }, { once: true });
 
-        const data = await res.json();
-        buildTicker(data.items || []);
-        statusTime.textContent = new Date().toLocaleTimeString();
-      } catch (err) {
-        console.error(err);
-        statusTime.textContent = "Network error";
+    newCard.addEventListener("animationend", () => {
+      newCard.classList.remove("ticker-card--incoming", "ticker-card--animate-in");
+    }, { once: true });
+  }
+
+  async function fetchCheckins() {
+    try {
+      statusTime.textContent = "Updating…";
+
+      const rssUrl = encodeURIComponent(VENUE_RSS_URL);
+      // cache bust rss2json request too
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&_=${Date.now()}`;
+
+      const res = await fetch(apiUrl, { cache: "no-store" });
+      if (!res.ok) {
+        statusTime.textContent = "Feed error";
+        return;
+      }
+
+      const data = await res.json();
+      buildTicker(data.items || []);
+      statusTime.textContent = new Date().toLocaleTimeString();
+    } catch (err) {
+      console.error(err);
+      statusTime.textContent = "Network error";
+    }
+  }
+
+  function startAutoRefresh() {
+    fetchCheckins();
+    setInterval(fetchCheckins, REFRESH_MS);
+  }
+
+  // ========= NOW PLAYING (Last.fm, proxy-first + fallback) =========
+  const LASTFM_USER = "funcleson";
+  const LASTFM_FEED_BASE = `https://lfm.xiffy.nl/${LASTFM_USER}`;
+  const LASTFM_REFRESH_MS = 15000;
+
+  const CORS_RAW_PROXY = "https://api.allorigins.win/raw?url=";
+
+  const npArtImg   = document.getElementById("npArtImg");
+  const npTrack    = document.getElementById("npTrack");
+  const npArtist   = document.getElementById("npArtist");
+  const npTime     = document.getElementById("npTime");
+  const npPillText = document.getElementById("npPillText");
+  const npFallback = document.getElementById("npFallback");
+
+  function parseArtistTrack(title) {
+    if (!title) return { artist: "", track: "" };
+    const seps = [" — ", " – ", " - ", " —", " –", " -"];
+    for (const sep of seps) {
+      if (title.includes(sep)) {
+        const parts = title.split(sep).map(s => s.trim()).filter(Boolean);
+        if (parts.length >= 2) return { artist: parts[0], track: parts.slice(1).join(" - ") };
       }
     }
-
-    function startAutoRefresh() {
-      fetchCheckins();
-      setInterval(fetchCheckins, REFRESH_MS);
-    }
-
-// ========= NOW PLAYING (Last.fm via RSS, no rss2json cache) =========
-const LASTFM_USER = "funcleson";
-const LASTFM_FEED_BASE = `https://lfm.xiffy.nl/${LASTFM_USER}`;
-const LASTFM_REFRESH_MS = 15000;
-
-// Use a simple CORS "raw" proxy to fetch the RSS as text.
-// (If this ever rate-limits, see Alternatives below.)
-const CORS_RAW_PROXY = "https://api.allorigins.win/raw?url=";
-
-const npArtImg   = document.getElementById("npArtImg");
-const npTrack    = document.getElementById("npTrack");
-const npArtist   = document.getElementById("npArtist");
-const npTime     = document.getElementById("npTime");
-const npPillText = document.getElementById("npPillText");
-const npFallback = document.getElementById("npFallback");
-
-function parseArtistTrack(title) {
-  if (!title) return { artist: "", track: "" };
-
-  const seps = [" — ", " – ", " - ", " —", " –", " -"];
-  for (const sep of seps) {
-    if (title.includes(sep)) {
-      const parts = title.split(sep).map(s => s.trim()).filter(Boolean);
-      if (parts.length >= 2) return { artist: parts[0], track: parts.slice(1).join(" - ") };
-    }
-  }
-  return { artist: "", track: title.trim() };
-}
-
-function getFirstText(parent, selector) {
-  const el = parent ? parent.querySelector(selector) : null;
-  return el && el.textContent ? el.textContent.trim() : "";
-}
-
-function timeAgoFromAny(dateString) {
-  const d = new Date(dateString);
-  if (isNaN(d)) return "";
-  return timeAgo(d.toString()); // reuse your existing timeAgo()
-}
-
-function pickItemImage(itemEl) {
-  if (!itemEl) return "";
-
-  // <enclosure url="...">
-  const enc = itemEl.querySelector("enclosure");
-  if (enc && enc.getAttribute("url")) return enc.getAttribute("url");
-
-  // media namespace possibilities
-  const mediaContent =
-    itemEl.querySelector("media\\:content") ||
-    itemEl.querySelector("content");
-
-  if (mediaContent) {
-    const url = mediaContent.getAttribute("url");
-    if (url) return url;
+    return { artist: "", track: title.trim() };
   }
 
-  const mediaThumb =
-    itemEl.querySelector("media\\:thumbnail") ||
-    itemEl.querySelector("thumbnail");
-
-  if (mediaThumb) {
-    const url = mediaThumb.getAttribute("url");
-    if (url) return url;
+  function getFirstText(parent, selector) {
+    const el = parent ? parent.querySelector(selector) : null;
+    return el && el.textContent ? el.textContent.trim() : "";
   }
 
-  // Last resort: try to find an image URL inside description
-  const desc = getFirstText(itemEl, "description");
-  const m = desc.match(/https?:\/\/[^"\s>]+?\.(jpg|jpeg|png|webp)/i);
-  return m ? m[0] : "";
-}
+  function pickItemImage(itemEl) {
+    if (!itemEl) return "";
+    const enc = itemEl.querySelector("enclosure");
+    if (enc && enc.getAttribute("url")) return enc.getAttribute("url");
 
-async function fetchLastFmNowPlaying() {
-  try {
-    // cache-bust the FEED itself (not the proxy), so you don't get stale responses
-    const feedUrl = `${LASTFM_FEED_BASE}?_=${Date.now()}`;
-    const url = CORS_RAW_PROXY + encodeURIComponent(feedUrl);
-
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) {
-      npPillText.textContent = "Offline";
-      return;
+    const mediaContent =
+      itemEl.querySelector("media\\:content") ||
+      itemEl.querySelector("content");
+    if (mediaContent) {
+      const url = mediaContent.getAttribute("url");
+      if (url) return url;
     }
 
-    const xmlText = await res.text();
-    const doc = new DOMParser().parseFromString(xmlText, "text/xml");
-
-    const item = doc.querySelector("item");
-    if (!item) {
-      npFallback.style.display = "block";
-      npTrack.textContent = "—";
-      npArtist.textContent = "—";
-      npTime.textContent = "";
-      npPillText.textContent = "Waiting";
-      return;
+    const mediaThumb =
+      itemEl.querySelector("media\\:thumbnail") ||
+      itemEl.querySelector("thumbnail");
+    if (mediaThumb) {
+      const url = mediaThumb.getAttribute("url");
+      if (url) return url;
     }
 
-    const title = getFirstText(item, "title");
-    const pubDate = getFirstText(item, "pubDate");
-    const { artist, track } = parseArtistTrack(title);
+    const desc = getFirstText(itemEl, "description");
+    const m = desc.match(/https?:\/\/[^"\s>]+?\.(jpg|jpeg|png|webp)/i);
+    return m ? m[0] : "";
+  }
 
-    const imgUrl = pickItemImage(item);
-    if (imgUrl) {
-      npArtImg.src = imgUrl;
+  function applyNowPlaying({ title, pubDate, imageUrl }) {
+    const { artist, track } = parseArtistTrack(title || "");
+    npTrack.textContent = track || "—";
+    npArtist.textContent = artist || "—";
+
+    if (imageUrl) {
+      npArtImg.src = imageUrl;
       npArtImg.style.opacity = "1";
     } else {
-      // if no image, keep it clean
       npArtImg.removeAttribute("src");
       npArtImg.style.opacity = "0";
     }
 
-    npTrack.textContent = track || "—";
-    npArtist.textContent = artist || "—";
-
-    // “Now Playing” heuristic: very recent scrobble time
     const then = new Date(pubDate);
     const now = new Date();
     const diffSec = isNaN(then) ? null : Math.floor((now - then) / 1000);
 
-    if (diffSec !== null && diffSec <= 240) {
-      npPillText.textContent = "Now Playing";
-    } else {
-      npPillText.textContent = "Recently Played";
-    }
+    npPillText.textContent =
+      (diffSec !== null && diffSec <= 240) ? "Now Playing" : "Recently Played";
 
-    npTime.textContent = pubDate ? ("Updated " + timeAgoFromAny(pubDate)) : "";
+    npTime.textContent = pubDate ? ("Updated " + timeAgo(pubDate)) : "";
     npFallback.style.display = "none";
-  } catch (e) {
-    console.error("Last.fm widget error:", e);
-    npPillText.textContent = "Error";
   }
-}
 
-function startLastFmWidget() {
-  // If the album art URL 404s, don't show a broken icon forever
-  npArtImg.addEventListener("error", () => {
-    npArtImg.removeAttribute("src");
-    npArtImg.style.opacity = "0";
-  });
+  async function fetchLastFmViaProxy() {
+    const feedUrl = `${LASTFM_FEED_BASE}?_=${Date.now()}`;
+    const url = CORS_RAW_PROXY + encodeURIComponent(feedUrl);
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("proxy fetch failed");
 
-  fetchLastFmNowPlaying();
-  setInterval(fetchLastFmNowPlaying, LASTFM_REFRESH_MS);
-}
+    const xmlText = await res.text();
+    const doc = new DOMParser().parseFromString(xmlText, "text/xml");
+    const item = doc.querySelector("item");
+    if (!item) return null;
 
-  </script>
+    return {
+      title: getFirstText(item, "title"),
+      pubDate: getFirstText(item, "pubDate"),
+      imageUrl: pickItemImage(item)
+    };
+  }
+
+  async function fetchLastFmViaRss2JsonFallback() {
+    const rssUrl = encodeURIComponent(LASTFM_FEED_BASE);
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&_=${Date.now()}`;
+    const res = await fetch(apiUrl, { cache: "no-store" });
+    if (!res.ok) throw new Error("rss2json fallback failed");
+
+    const data = await res.json();
+    const items = data.items || [];
+    if (!items.length) return null;
+
+    const latest = items[0];
+    // rss2json usually returns title + pubDate + enclosure/thumbnail
+    const imageUrl =
+      (latest.enclosure && latest.enclosure.link) ||
+      latest.thumbnail ||
+      "";
+
+    return {
+      title: latest.title || "",
+      pubDate: latest.pubDate || "",
+      imageUrl
+    };
+  }
+
+  async function fetchLastFmNowPlaying() {
+    try {
+      npPillText.textContent = "Updating…";
+
+      let payload = null;
+
+      // Try proxy-first
+      try {
+        payload = await fetchLastFmViaProxy();
+      } catch (e) {
+        console.warn("Last.fm proxy failed; using fallback:", e);
+        payload = await fetchLastFmViaRss2JsonFallback();
+      }
+
+      if (!payload) {
+        npFallback.style.display = "block";
+        npTrack.textContent = "—";
+        npArtist.textContent = "—";
+        npTime.textContent = "";
+        npPillText.textContent = "Waiting";
+        return;
+      }
+
+      applyNowPlaying(payload);
+    } catch (e) {
+      console.error("Last.fm widget error:", e);
+      npPillText.textContent = "Error";
+    }
+  }
+
+  function startLastFmWidget() {
+    npArtImg.addEventListener("error", () => {
+      npArtImg.removeAttribute("src");
+      npArtImg.style.opacity = "0";
+    });
+
+    fetchLastFmNowPlaying();
+    setInterval(fetchLastFmNowPlaying, LASTFM_REFRESH_MS);
+  }
+
+  // ========= BOOT (THIS WAS MISSING IN YOUR FILE) =========
+  function boot() {
+    fetchBeersFromSheet();
+    startAutoRefresh();
+    startLastFmWidget();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+</script>
+
 </body>
 </html>
