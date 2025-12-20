@@ -147,22 +147,31 @@
     }
 
     .beer-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 12px;
-    }
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;   /* was baseline; lets name wrap nicely */
+  gap: 12px;
+}
 
     .beer-name {
-      font-size: 1.8rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  flex: 1;                   /* allow name to take remaining width */
+  min-width: 0;              /* critical so flex wrapping behaves */
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-main);
+      
+  /* Allow wrap to 2 lines, then clamp */
+  white-space: normal;       /* was nowrap */
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;     /* wrap to 2 lines max */
+  line-height: 1.15;
+}
 
     .beer-meta-inline {
       font-size: 1.25rem;
@@ -762,6 +771,7 @@
 
         const rightMeta = document.createElement("div");
         rightMeta.style.display = "flex";
+        rightMeta.style.flexShrink = "0";
         rightMeta.style.alignItems = "center";
         rightMeta.style.gap = "6px";
 
@@ -827,8 +837,8 @@
 
   // ========= TICKER CONFIG (Untappd) =========
   const VENUE_RSS_URL = "https://untappd.com/rss/venue/9899874";
-  const REFRESH_MS = 60000;
-  const MAX_AGE_HOURS = 7000;
+  const REFRESH_MS = 90000;
+  const MAX_AGE_HOURS = 72;
 
   const tickerTrack = document.getElementById("tickerTrack");
   const statusTime = document.getElementById("statusTime");
@@ -1047,181 +1057,6 @@
     setInterval(fetchCheckins, REFRESH_MS);
   }
 
-  // ========= NOW PLAYING (Last.fm, proxy-first + fallback) =========
-  const LASTFM_USER = "funcleson";
-  const LASTFM_FEED_BASE = `https://lfm.xiffy.nl/${LASTFM_USER}`;
-  const LASTFM_REFRESH_MS = 15000;
-
-  const CORS_RAW_PROXY = "https://api.allorigins.win/raw?url=";
-
-  const npArtImg   = document.getElementById("npArtImg");
-  const npTrack    = document.getElementById("npTrack");
-  const npArtist   = document.getElementById("npArtist");
-  const npTime     = document.getElementById("npTime");
-  const npPillText = document.getElementById("npPillText");
-  const npFallback = document.getElementById("npFallback");
-
-  function parseArtistTrack(title) {
-    if (!title) return { artist: "", track: "" };
-    const seps = [" — ", " – ", " - ", " —", " –", " -"];
-    for (const sep of seps) {
-      if (title.includes(sep)) {
-        const parts = title.split(sep).map(s => s.trim()).filter(Boolean);
-        if (parts.length >= 2) return { artist: parts[0], track: parts.slice(1).join(" - ") };
-      }
-    }
-    return { artist: "", track: title.trim() };
-  }
-
-  function getFirstText(parent, selector) {
-    const el = parent ? parent.querySelector(selector) : null;
-    return el && el.textContent ? el.textContent.trim() : "";
-  }
-
-  function pickItemImage(itemEl) {
-    if (!itemEl) return "";
-    const enc = itemEl.querySelector("enclosure");
-    if (enc && enc.getAttribute("url")) return enc.getAttribute("url");
-
-    const mediaContent =
-      itemEl.querySelector("media\\:content") ||
-      itemEl.querySelector("content");
-    if (mediaContent) {
-      const url = mediaContent.getAttribute("url");
-      if (url) return url;
-    }
-
-    const mediaThumb =
-      itemEl.querySelector("media\\:thumbnail") ||
-      itemEl.querySelector("thumbnail");
-    if (mediaThumb) {
-      const url = mediaThumb.getAttribute("url");
-      if (url) return url;
-    }
-
-    const desc = getFirstText(itemEl, "description");
-    const m = desc.match(/https?:\/\/[^"\s>]+?\.(jpg|jpeg|png|webp)/i);
-    return m ? m[0] : "";
-  }
-
-  function applyNowPlaying({ title, pubDate, imageUrl }) {
-    const { artist, track } = parseArtistTrack(title || "");
-    npTrack.textContent = track || "—";
-    npArtist.textContent = artist || "—";
-
-    if (imageUrl) {
-      npArtImg.src = imageUrl;
-      npArtImg.style.opacity = "1";
-    } else {
-      npArtImg.removeAttribute("src");
-      npArtImg.style.opacity = "0";
-    }
-
-    const then = new Date(pubDate);
-    const now = new Date();
-    const diffSec = isNaN(then) ? null : Math.floor((now - then) / 1000);
-
-    npPillText.textContent =
-      (diffSec !== null && diffSec <= 240) ? "Now Playing" : "Recently Played";
-
-    npTime.textContent = pubDate ? ("Updated " + timeAgo(pubDate)) : "";
-    npFallback.style.display = "none";
-  }
-
-  async function fetchLastFmViaProxy() {
-    const feedUrl = `${LASTFM_FEED_BASE}?_=${Date.now()}`;
-    const url = CORS_RAW_PROXY + encodeURIComponent(feedUrl);
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("proxy fetch failed");
-
-    const xmlText = await res.text();
-    const doc = new DOMParser().parseFromString(xmlText, "text/xml");
-    const item = doc.querySelector("item");
-    if (!item) return null;
-
-    return {
-      title: getFirstText(item, "title"),
-      pubDate: getFirstText(item, "pubDate"),
-      imageUrl: pickItemImage(item)
-    };
-  }
-
-  async function fetchLastFmViaRss2JsonFallback() {
-    const rssUrl = encodeURIComponent(LASTFM_FEED_BASE);
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&_=${Date.now()}`;
-    const res = await fetch(apiUrl, { cache: "no-store" });
-    if (!res.ok) throw new Error("rss2json fallback failed");
-
-    const data = await res.json();
-    const items = data.items || [];
-    if (!items.length) return null;
-
-    const latest = items[0];
-    // rss2json usually returns title + pubDate + enclosure/thumbnail
-    const imageUrl =
-      (latest.enclosure && latest.enclosure.link) ||
-      latest.thumbnail ||
-      "";
-
-    return {
-      title: latest.title || "",
-      pubDate: latest.pubDate || "",
-      imageUrl
-    };
-  }
-
-  async function fetchLastFmNowPlaying() {
-    try {
-      npPillText.textContent = "Updating…";
-
-      let payload = null;
-
-      // Try proxy-first
-      try {
-        payload = await fetchLastFmViaProxy();
-      } catch (e) {
-        console.warn("Last.fm proxy failed; using fallback:", e);
-        payload = await fetchLastFmViaRss2JsonFallback();
-      }
-
-      if (!payload) {
-        npFallback.style.display = "block";
-        npTrack.textContent = "—";
-        npArtist.textContent = "—";
-        npTime.textContent = "";
-        npPillText.textContent = "Waiting";
-        return;
-      }
-
-      applyNowPlaying(payload);
-    } catch (e) {
-      console.error("Last.fm widget error:", e);
-      npPillText.textContent = "Error";
-    }
-  }
-
-  function startLastFmWidget() {
-    npArtImg.addEventListener("error", () => {
-      npArtImg.removeAttribute("src");
-      npArtImg.style.opacity = "0";
-    });
-
-    fetchLastFmNowPlaying();
-    setInterval(fetchLastFmNowPlaying, LASTFM_REFRESH_MS);
-  }
-
-  // ========= BOOT (THIS WAS MISSING IN YOUR FILE) =========
-  function boot() {
-    fetchBeersFromSheet();
-    startAutoRefresh();
-    startLastFmWidget();
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
 </script>
 
 </body>
