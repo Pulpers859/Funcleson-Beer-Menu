@@ -910,26 +910,48 @@ top.appendChild(rightMeta);
     }
 
     async function fetchCheckins() {
-      try {
-        statusTime.textContent = "Updating…";
+  try {
+    statusTime.textContent = "Updating…";
 
-        const rssUrl = encodeURIComponent(VENUE_RSS_URL);
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&_=${Date.now()}`;
+    // Use a CORS-friendly proxy to avoid rss2json caching/staleness
+    const proxiedUrl =
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(VENUE_RSS_URL)}&_=${Date.now()}`;
 
-        const res = await fetch(apiUrl, { cache: "no-store" });
-        if (!res.ok) {
-          statusTime.textContent = "Feed error";
-          return;
-        }
-
-        const data = await res.json();
-        buildTicker(data.items || []);
-        statusTime.textContent = new Date().toLocaleTimeString();
-      } catch (err) {
-        console.error(err);
-        statusTime.textContent = "Network error";
-      }
+    const res = await fetch(proxiedUrl, { cache: "no-store" });
+    if (!res.ok) {
+      statusTime.textContent = "Feed error";
+      return;
     }
+
+    const xmlText = await res.text();
+
+    // Parse RSS XML -> items array compatible with your existing buildTicker()
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(xmlText, "text/xml");
+
+    const nodes = Array.from(xml.querySelectorAll("channel > item"));
+
+    const items = nodes.map((node) => {
+      const title = node.querySelector("title")?.textContent?.trim() || "";
+      const pubDate = node.querySelector("pubDate")?.textContent?.trim() || "";
+      const description = node.querySelector("description")?.textContent || "";
+
+      return {
+        title,
+        pubDate,
+        description,
+        content: description, // so your parseRating() still works
+      };
+    });
+
+    buildTicker(items);
+    statusTime.textContent = new Date().toLocaleTimeString();
+  } catch (err) {
+    console.error(err);
+    statusTime.textContent = "Network error";
+  }
+}
+
 
     function startAutoRefresh() {
       fetchCheckins();
