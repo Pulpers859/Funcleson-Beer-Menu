@@ -98,7 +98,7 @@
     }
 
     .section-label {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
       color: var(--text-soft);
@@ -114,7 +114,7 @@
       flex: 1 1 auto;
       display: flex;
       gap: 16px;
-      padding: 16px 20px;
+      padding: 18px 24px;
       background: radial-gradient(circle at top, #1e202b 0%, #13151e 50%, #101119 100%);
     }
 
@@ -128,8 +128,8 @@
     .beer-row {
       display: flex;
       flex-direction: column;
-      padding: 8px 12px;
-      border-radius: 4px;
+      padding: 12px 16px;
+      border-radius: 6px;
       background: rgba(24, 25, 32, 0.9);
       border: 1px solid rgba(39, 41, 53, 0.9);
     }
@@ -142,7 +142,7 @@
     }
 
     .beer-name {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 600;
       letter-spacing: 0.03em;
       text-transform: uppercase;
@@ -153,7 +153,7 @@
     }
 
     .beer-meta-inline {
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       color: var(--text-soft);
       white-space: nowrap;
       opacity: 0.95;
@@ -164,7 +164,7 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       color: var(--text-muted);
     }
 
@@ -181,21 +181,21 @@
     }
 
     .tap-badge {
-      font-size: 1rem;
+      font-size: 1.05rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
       border-radius: 999px;
-      padding: 3px 10px;
+      padding: 4px 12px;
       border: 1px solid rgba(244, 196, 48, 0.85);
       color: var(--accent-yellow-soft);
     }
 
     .featured-tag {
-      font-size: 1rem;
+      font-size: 1.05rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
       border-radius: 999px;
-      padding: 3px 10px;
+      padding: 4px 12px;
       border: 1px solid rgba(144, 205, 244, 0.8);
       color: #9cd0ff;
       margin-left: 6px;
@@ -436,121 +436,132 @@
     }
 
     /* === NOW PLAYING WIDGET (bottom-right, above ticker) === */
-    .nowplaying-pip {
-      position: absolute;
-      right: 24px;
-      bottom: 260px; /* clears ticker */
-      width: 520px;
-      height: 300px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: rgba(5, 5, 9, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow:
-        0 0 10px rgba(0, 0, 0, 0.9),
-        0 0 14px rgba(79, 209, 255, 0.5);
-      z-index: 5;
-      display: flex;
-      gap: 14px;
-      padding: 14px;
-      align-items: center;
-    }
+/* === NOW PLAYING WIDGET (bottom-right, above ticker) === */
+.nowplaying-pip {
+  position: absolute;
+  right: 24px;
+  bottom: 260px; /* clears ticker */
+  width: 560px;          /* a touch wider */
+  height: 330px;         /* a touch taller */
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(5, 5, 9, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 0 10px rgba(0, 0, 0, 0.9),
+    0 0 14px rgba(79, 209, 255, 0.5);
+  z-index: 5;
 
-    .np-art {
-      width: 150px;
-      height: 150px;
-      border-radius: 12px;
-      overflow: hidden;
-      flex: 0 0 auto;
-      border: 1px solid rgba(255,255,255,0.22);
-      background: #050509;
-      box-shadow: 0 0 12px rgba(0,0,0,0.55);
-    }
+  display: flex;
+  gap: 18px;             /* more breathing room */
+  padding: 18px;         /* more breathing room */
+  align-items: center;
+}
 
-    .np-art img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
+.np-art {
+  width: 190px;          /* bigger album art */
+  height: 190px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: #050509;
+  box-shadow: 0 0 12px rgba(0,0,0,0.55);
+}
 
-    .np-meta {
-      flex: 1 1 auto;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+.np-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
-    .np-kicker {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
+.np-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;             /* spacing so it doesn’t crowd */
+}
 
-    .np-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-soft);
-    }
+.np-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
 
-    .np-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(244, 196, 48, 0.55);
-      background: rgba(244, 196, 48, 0.10);
-      color: var(--accent-yellow-soft);
-      font-size: 0.75rem;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
+.np-label {
+  font-size: 0.9rem;     /* slightly bigger */
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-soft);
+}
 
-    .np-pill-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-yellow);
-      box-shadow: 0 0 10px rgba(244, 196, 48, 0.6);
-    }
+.np-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;     /* bigger pill */
+  border-radius: 999px;
+  border: 1px solid rgba(244, 196, 48, 0.55);
+  background: rgba(244, 196, 48, 0.10);
+  color: var(--accent-yellow-soft);
+  font-size: 0.9rem;     /* bigger */
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
-    .np-track {
-      font-size: 1.35rem;
-      font-weight: 650;
-      color: var(--text-main);
-      line-height: 1.15;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.np-pill-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(244, 196, 48, 0.6);
+}
 
-    .np-artist {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+/* Let the track actually use space (up to 2 lines), not tiny single-line */
+.np-track {
+  font-size: 1.9rem;     /* bigger headline */
+  font-weight: 750;
+  color: var(--text-main);
+  line-height: 1.12;
 
-    .np-time {
-      margin-top: 2px;
-      font-size: 0.95rem;
-      color: var(--text-soft);
-      opacity: 0.85;
-    }
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;     /* two lines max */
+  -webkit-box-orient: vertical;
+}
 
-    .np-fallback {
-      font-size: 1.05rem;
-      color: var(--text-soft);
-      opacity: 0.9;
-      line-height: 1.3;
-    }
+.np-artist {
+  font-size: 1.35rem;    /* bigger */
+  color: var(--text-muted);
+  line-height: 1.18;
+
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;     /* keep it clean */
+  -webkit-box-orient: vertical;
+}
+
+.np-time {
+  margin-top: 2px;
+  font-size: 1.1rem;     /* bigger */
+  color: var(--text-soft);
+  opacity: 0.88;
+}
+
+.np-fallback {
+  font-size: 1.15rem;
+  color: var(--text-soft);
+  opacity: 0.9;
+  line-height: 1.35;
+}
+
 
     @media (max-width: 900px) {
       .ticker-label { display: none; }
