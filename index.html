@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <title>Funcleson Funkatorium Board</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 
   <style>
     :root {
@@ -1018,108 +1021,150 @@
       setInterval(fetchCheckins, REFRESH_MS);
     }
 
-    // ========= NOW PLAYING (Last.fm via RSS) =========
-    const LASTFM_USER = "funcleson";
-    const LASTFM_RSS_URL = `https://lfm.xiffy.nl/${LASTFM_USER}`;
-    const LASTFM_REFRESH_MS = 15000;
+// ========= NOW PLAYING (Last.fm via RSS, no rss2json cache) =========
+const LASTFM_USER = "funcleson";
+const LASTFM_FEED_BASE = `https://lfm.xiffy.nl/${LASTFM_USER}`;
+const LASTFM_REFRESH_MS = 15000;
 
-    const npArtImg   = document.getElementById("npArtImg");
-    const npTrack    = document.getElementById("npTrack");
-    const npArtist   = document.getElementById("npArtist");
-    const npTime     = document.getElementById("npTime");
-    const npPillText = document.getElementById("npPillText");
-    const npFallback = document.getElementById("npFallback");
+// Use a simple CORS "raw" proxy to fetch the RSS as text.
+// (If this ever rate-limits, see Alternatives below.)
+const CORS_RAW_PROXY = "https://api.allorigins.win/raw?url=";
 
-    function parseArtistTrack(title) {
-      if (!title) return { artist: "", track: "" };
+const npArtImg   = document.getElementById("npArtImg");
+const npTrack    = document.getElementById("npTrack");
+const npArtist   = document.getElementById("npArtist");
+const npTime     = document.getElementById("npTime");
+const npPillText = document.getElementById("npPillText");
+const npFallback = document.getElementById("npFallback");
 
-      // Try common separators first
-      const seps = [" — ", " – ", " - ", " —", " –", " -"];
-      for (const sep of seps) {
-        if (title.includes(sep)) {
-          const parts = title.split(sep).map(s => s.trim()).filter(Boolean);
-          if (parts.length >= 2) {
-            return { artist: parts[0], track: parts.slice(1).join(" - ") };
-          }
-        }
-      }
-      // Fallback: unknown format
-      return { artist: "", track: title.trim() };
+function parseArtistTrack(title) {
+  if (!title) return { artist: "", track: "" };
+
+  const seps = [" — ", " – ", " - ", " —", " –", " -"];
+  for (const sep of seps) {
+    if (title.includes(sep)) {
+      const parts = title.split(sep).map(s => s.trim()).filter(Boolean);
+      if (parts.length >= 2) return { artist: parts[0], track: parts.slice(1).join(" - ") };
+    }
+  }
+  return { artist: "", track: title.trim() };
+}
+
+function getFirstText(parent, selector) {
+  const el = parent ? parent.querySelector(selector) : null;
+  return el && el.textContent ? el.textContent.trim() : "";
+}
+
+function timeAgoFromAny(dateString) {
+  const d = new Date(dateString);
+  if (isNaN(d)) return "";
+  return timeAgo(d.toString()); // reuse your existing timeAgo()
+}
+
+function pickItemImage(itemEl) {
+  if (!itemEl) return "";
+
+  // <enclosure url="...">
+  const enc = itemEl.querySelector("enclosure");
+  if (enc && enc.getAttribute("url")) return enc.getAttribute("url");
+
+  // media namespace possibilities
+  const mediaContent =
+    itemEl.querySelector("media\\:content") ||
+    itemEl.querySelector("content");
+
+  if (mediaContent) {
+    const url = mediaContent.getAttribute("url");
+    if (url) return url;
+  }
+
+  const mediaThumb =
+    itemEl.querySelector("media\\:thumbnail") ||
+    itemEl.querySelector("thumbnail");
+
+  if (mediaThumb) {
+    const url = mediaThumb.getAttribute("url");
+    if (url) return url;
+  }
+
+  // Last resort: try to find an image URL inside description
+  const desc = getFirstText(itemEl, "description");
+  const m = desc.match(/https?:\/\/[^"\s>]+?\.(jpg|jpeg|png|webp)/i);
+  return m ? m[0] : "";
+}
+
+async function fetchLastFmNowPlaying() {
+  try {
+    // cache-bust the FEED itself (not the proxy), so you don't get stale responses
+    const feedUrl = `${LASTFM_FEED_BASE}?_=${Date.now()}`;
+    const url = CORS_RAW_PROXY + encodeURIComponent(feedUrl);
+
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      npPillText.textContent = "Offline";
+      return;
     }
 
-    function extractImage(item) {
-      // rss2json may expose: enclosure.link, thumbnail, or media:content
-      if (item && item.enclosure && item.enclosure.link) return item.enclosure.link;
-      if (item && item.thumbnail) return item.thumbnail;
+    const xmlText = await res.text();
+    const doc = new DOMParser().parseFromString(xmlText, "text/xml");
 
-      // attempt to find an image URL in description (last resort)
-      const html = (item && item.description) ? String(item.description) : "";
-      const m = html.match(/https?:\/\/[^"\s>]+?\.(jpg|jpeg|png|webp)/i);
-      if (m) return m[0];
-
-      return "";
+    const item = doc.querySelector("item");
+    if (!item) {
+      npFallback.style.display = "block";
+      npTrack.textContent = "—";
+      npArtist.textContent = "—";
+      npTime.textContent = "";
+      npPillText.textContent = "Waiting";
+      return;
     }
 
-    async function fetchLastFmNowPlaying() {
-      try {
-        const rssUrl = encodeURIComponent(LASTFM_RSS_URL);
-        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+    const title = getFirstText(item, "title");
+    const pubDate = getFirstText(item, "pubDate");
+    const { artist, track } = parseArtistTrack(title);
 
-        const res = await fetch(apiUrl);
-        if (!res.ok) {
-          npPillText.textContent = "Offline";
-          return;
-        }
-
-        const data = await res.json();
-        const items = data.items || [];
-        if (!items.length) {
-          npFallback.style.display = "block";
-          npTrack.textContent = "—";
-          npArtist.textContent = "—";
-          npTime.textContent = "";
-          npPillText.textContent = "Waiting";
-          return;
-        }
-
-        const latest = items[0];
-        const { artist, track } = parseArtistTrack(latest.title);
-
-        const imgUrl = extractImage(latest);
-        if (imgUrl) npArtImg.src = imgUrl;
-
-        npTrack.textContent = track || "—";
-        npArtist.textContent = artist || "—";
-
-        // Determine “Now Playing / Just Played” feel
-        const then = new Date(latest.pubDate);
-        const now = new Date();
-        const diffSec = isNaN(then) ? null : Math.floor((now - then) / 1000);
-
-        if (diffSec !== null && diffSec <= 240) {
-          npPillText.textContent = "Now Playing";
-        } else {
-          npPillText.textContent = "Recently Played";
-        }
-
-        npTime.textContent = latest.pubDate ? ("Updated " + timeAgo(latest.pubDate)) : "";
-        npFallback.style.display = "none";
-      } catch (e) {
-        console.error("Last.fm widget error:", e);
-        npPillText.textContent = "Error";
-      }
+    const imgUrl = pickItemImage(item);
+    if (imgUrl) {
+      npArtImg.src = imgUrl;
+      npArtImg.style.opacity = "1";
+    } else {
+      // if no image, keep it clean
+      npArtImg.removeAttribute("src");
+      npArtImg.style.opacity = "0";
     }
 
-    function startLastFmWidget() {
-      fetchLastFmNowPlaying();
-      setInterval(fetchLastFmNowPlaying, LASTFM_REFRESH_MS);
+    npTrack.textContent = track || "—";
+    npArtist.textContent = artist || "—";
+
+    // “Now Playing” heuristic: very recent scrobble time
+    const then = new Date(pubDate);
+    const now = new Date();
+    const diffSec = isNaN(then) ? null : Math.floor((now - then) / 1000);
+
+    if (diffSec !== null && diffSec <= 240) {
+      npPillText.textContent = "Now Playing";
+    } else {
+      npPillText.textContent = "Recently Played";
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      fetchBeersFromSheet();
-      startAutoRefresh();
-      startLastFmWidget();
-    });
+    npTime.textContent = pubDate ? ("Updated " + timeAgoFromAny(pubDate)) : "";
+    npFallback.style.display = "none";
+  } catch (e) {
+    console.error("Last.fm widget error:", e);
+    npPillText.textContent = "Error";
+  }
+}
+
+function startLastFmWidget() {
+  // If the album art URL 404s, don't show a broken icon forever
+  npArtImg.addEventListener("error", () => {
+    npArtImg.removeAttribute("src");
+    npArtImg.style.opacity = "0";
+  });
+
+  fetchLastFmNowPlaying();
+  setInterval(fetchLastFmNowPlaying, LASTFM_REFRESH_MS);
+}
+
   </script>
 </body>
 </html>
