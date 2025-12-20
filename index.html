@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <title>Funcleson Funkatorium Board</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
   <style>
     :root {
@@ -21,14 +21,9 @@
       --divider: #272935;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html,
-    body {
+    html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
@@ -61,65 +56,59 @@
       margin: 0 auto;
     }
 
-    /* === HEADER === */
     /* === HEADER (BIGGER / BANNER STYLE) === */
-.board-header {
-  flex: 0 0 auto;
-  padding: 18px 28px 14px;       /* more vertical space */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;                      /* more breathing room */
-  background: #101119;
-  border-bottom: 1px solid var(--divider);
-}
+    .board-header {
+      flex: 0 0 auto;
+      padding: 18px 28px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: #101119;
+      border-bottom: 1px solid var(--divider);
+    }
 
-.venue-name {
-  width: 100%;
-  text-align: center;
-  font-size: clamp(3.2rem, 4.2vw, 5.2rem); /* big + responsive */
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent-yellow-soft);
+    .venue-name {
+      width: 100%;
+      text-align: center;
+      font-size: clamp(3.2rem, 4.2vw, 5.2rem);
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-yellow-soft);
+      padding: 0 14px;
+      line-height: 1.05;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-  /* helps it feel “end-to-end” */
-  padding: 0 14px;
-  line-height: 1.05;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
 
-/* Header right area still centered, just larger */
-.header-right {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
+    .header-qr-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
 
-.header-qr-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-}
+    .section-label {
+      font-size: 1.45rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+    }
 
-/* Make "On Tap" + category headers bigger in general */
-.section-label {
-  font-size: 1.45rem;             /* bigger */
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--text-soft);
-}
-
-.small-timestamp {
-  font-size: 1.2rem;              /* bigger timestamp */
-  color: var(--text-muted);
-}
-
+    .small-timestamp {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+    }
 
     /* === MAIN MENU AREA === */
     .board-main {
@@ -135,6 +124,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      min-width: 0;
     }
 
     .beer-row {
@@ -147,31 +137,31 @@
     }
 
     .beer-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;   /* was baseline; lets name wrap nicely */
-  gap: 12px;
-}
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start; /* lets name wrap nicely */
+      gap: 12px;
+    }
 
+    /* ✅ wrap + clamp to 2 lines so long names don't cut off */
     .beer-name {
-  flex: 1;                   /* allow name to take remaining width */
-  min-width: 0;              /* critical so flex wrapping behaves */
-  font-size: 1.5rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--text-main);
-      
-  /* Allow wrap to 2 lines, then clamp */
-  white-space: normal;       /* was nowrap */
-  overflow: hidden;
-  text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--text-main);
 
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;     /* wrap to 2 lines max */
-  line-height: 1.15;
-}
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-height: 1.15;
+    }
 
     .beer-meta-inline {
       font-size: 1.25rem;
@@ -187,18 +177,21 @@
       align-items: baseline;
       font-size: 1.25rem;
       color: var(--text-muted);
+      gap: 12px;
     }
 
     .beer-style {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .beer-price {
       font-weight: 600;
       color: var(--accent-yellow-soft);
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .tap-badge {
@@ -209,6 +202,7 @@
       padding: 4px 12px;
       border: 1px solid rgba(244, 196, 48, 0.85);
       color: var(--accent-yellow-soft);
+      white-space: nowrap;
     }
 
     .featured-tag {
@@ -220,6 +214,7 @@
       border: 1px solid rgba(144, 205, 244, 0.8);
       color: #9cd0ff;
       margin-left: 6px;
+      white-space: nowrap;
     }
 
     /* === FOOTER TICKER === */
@@ -255,6 +250,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
+      white-space: nowrap;
     }
 
     .ticker-label-dot {
@@ -269,6 +265,7 @@
       overflow: hidden;
       position: relative;
       height: 120px;
+      min-width: 0;
     }
 
     .ticker-track {
@@ -291,6 +288,8 @@
       align-items: baseline;
       gap: 0.5rem;
       font-size: 2.2rem;
+      min-width: 0;
+      flex-wrap: wrap;
     }
 
     .ticker-line-sub {
@@ -299,35 +298,15 @@
       gap: 0.5rem;
       font-size: 1.5rem;
       color: var(--text-muted);
+      flex-wrap: wrap;
     }
 
-    .ticker-user {
-      font-weight: 600;
-      color: var(--accent-yellow);
-    }
-
-    .ticker-beer {
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .ticker-rating {
-      font-weight: 500;
-      color: var(--accent-yellow-soft);
-    }
-
-    .ticker-time {
-      color: var(--text-muted);
-    }
-
-    .ticker-separator {
-      color: var(--text-muted);
-    }
-
-    .ticker-empty {
-      font-size: 2rem;
-      color: var(--text-soft);
-    }
+    .ticker-user { font-weight: 600; color: var(--accent-yellow); }
+    .ticker-beer { font-weight: 600; color: var(--text-main); }
+    .ticker-rating { font-weight: 500; color: var(--accent-yellow-soft); }
+    .ticker-time { color: var(--text-muted); }
+    .ticker-separator { color: var(--text-muted); }
+    .ticker-empty { font-size: 2rem; color: var(--text-soft); }
 
     .status-pill {
       flex-shrink: 0;
@@ -338,6 +317,7 @@
       font-size: 0.85rem;
       line-height: 1.2;
       color: var(--text-muted);
+      white-space: nowrap;
     }
 
     .status-label {
@@ -346,24 +326,17 @@
       font-size: 0.7rem;
     }
 
-    .status-time {
-      font-size: 0.95rem;
-    }
+    .status-time { font-size: 0.95rem; }
 
-    /* --- Smooth morph-style transition (PowerPoint vibe) --- */
+    /* --- Smooth morph transition --- */
     .ticker-card--incoming {
       opacity: 0;
       transform: translateY(20px) scale(0.96);
       filter: blur(6px);
     }
 
-    .ticker-card--animate-in {
-      animation: tickerMorphIn 0.9s ease-in-out forwards;
-    }
-
-    .ticker-card--outgoing {
-      animation: tickerMorphOut 0.9s ease-in-out forwards;
-    }
+    .ticker-card--animate-in { animation: tickerMorphIn 0.9s ease-in-out forwards; }
+    .ticker-card--outgoing { animation: tickerMorphOut 0.9s ease-in-out forwards; }
 
     @keyframes tickerMorphOut {
       0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
@@ -377,65 +350,65 @@
       100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
     }
 
-    /* === QR BLOCKS (single neon) === */
+    /* === QR bubble === */
     .neon-qr {
-  display: flex;
-  align-items: center;
-  gap: 14px;                      /* more spacing */
-  padding: 10px 16px;             /* bigger bubble */
-  border-radius: 999px;
-  background: radial-gradient(circle at top left, #ffef9f 0%, #ff6bd5 40%, #4fd1ff 80%, #1b1b2f 100%);
-  position: relative;
-  overflow: hidden;
-  animation: qrGlow 4.5s ease-in-out infinite;
-  box-shadow:
-    0 0 8px rgba(255, 255, 255, 0.4),
-    0 0 18px rgba(255, 107, 213, 0.55),
-    0 0 26px rgba(79, 209, 255, 0.55);
-}
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top left, #ffef9f 0%, #ff6bd5 40%, #4fd1ff 80%, #1b1b2f 100%);
+      position: relative;
+      overflow: hidden;
+      animation: qrGlow 4.5s ease-in-out infinite;
+      box-shadow:
+        0 0 8px rgba(255, 255, 255, 0.4),
+        0 0 18px rgba(255, 107, 213, 0.55),
+        0 0 26px rgba(79, 209, 255, 0.55);
+    }
 
     .neon-qr::before {
-  content: "";
-  position: absolute;
-  inset: 2px;
-  border-radius: 999px;
-  background: #080814;
-  opacity: 0.92;
-}
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: 999px;
+      background: #080814;
+      opacity: 0.92;
+    }
 
     .neon-qr-inner {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 14px;                      /* more spacing inside */
-}
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-.neon-qr-text {
-  display: flex;
-  flex-direction: column;
-  font-size: 1.05rem;             /* bigger text */
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #e5e7ff;
-  line-height: 1.15;
-}
+    .neon-qr-text {
+      display: flex;
+      flex-direction: column;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #e5e7ff;
+      line-height: 1.15;
+    }
 
-.neon-qr-text strong {
-  color: #ffef9f;
-  font-size: 1.15rem;             /* bigger emphasis */
-  letter-spacing: 0.14em;
-}
+    .neon-qr-text strong {
+      color: #ffef9f;
+      font-size: 1.15rem;
+      letter-spacing: 0.14em;
+    }
 
-   .neon-qr img {
-  width: 92px;                    /* bigger QR */
-  height: 92px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.25);
-  background: #050509;
-  box-shadow:
-    0 0 8px rgba(255,255,255,0.25),
-    0 0 14px rgba(255, 239, 159, 0.45);
-}
+    .neon-qr img {
+      width: 92px;
+      height: 92px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: #050509;
+      box-shadow:
+        0 0 8px rgba(255,255,255,0.25),
+        0 0 14px rgba(255, 239, 159, 0.45);
+    }
 
     @keyframes qrGlow {
       0% {
@@ -458,141 +431,12 @@
       }
     }
 
-    /* === NOW PLAYING WIDGET (bottom-right, above ticker) === */
-/* === NOW PLAYING WIDGET (bottom-right, above ticker) === */
-.nowplaying-pip {
-  position: absolute;
-  right: 24px;
-  bottom: 260px; /* clears ticker */
-  width: 560px;          /* a touch wider */
-  height: 330px;         /* a touch taller */
-  border-radius: 14px;
-  overflow: hidden;
-  background: rgba(5, 5, 9, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow:
-    0 0 10px rgba(0, 0, 0, 0.9),
-    0 0 14px rgba(79, 209, 255, 0.5);
-  z-index: 5;
-
-  display: flex;
-  gap: 18px;             /* more breathing room */
-  padding: 18px;         /* more breathing room */
-  align-items: center;
-}
-
-.np-art {
-  width: 190px;          /* bigger album art */
-  height: 190px;
-  border-radius: 14px;
-  overflow: hidden;
-  flex: 0 0 auto;
-  border: 1px solid rgba(255,255,255,0.22);
-  background: #050509;
-  box-shadow: 0 0 12px rgba(0,0,0,0.55);
-}
-
-.np-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.np-meta {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;             /* spacing so it doesn’t crowd */
-}
-
-.np-kicker {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.np-label {
-  font-size: 0.9rem;     /* slightly bigger */
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--text-soft);
-}
-
-.np-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;     /* bigger pill */
-  border-radius: 999px;
-  border: 1px solid rgba(244, 196, 48, 0.55);
-  background: rgba(244, 196, 48, 0.10);
-  color: var(--accent-yellow-soft);
-  font-size: 0.9rem;     /* bigger */
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.np-pill-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent-yellow);
-  box-shadow: 0 0 10px rgba(244, 196, 48, 0.6);
-}
-
-/* Let the track actually use space (up to 2 lines), not tiny single-line */
-.np-track {
-  font-size: 1.9rem;     /* bigger headline */
-  font-weight: 750;
-  color: var(--text-main);
-  line-height: 1.12;
-
-  white-space: normal;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;     /* two lines max */
-  -webkit-box-orient: vertical;
-}
-
-.np-artist {
-  font-size: 1.35rem;    /* bigger */
-  color: var(--text-muted);
-  line-height: 1.18;
-
-  white-space: normal;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;     /* keep it clean */
-  -webkit-box-orient: vertical;
-}
-
-.np-time {
-  margin-top: 2px;
-  font-size: 1.1rem;     /* bigger */
-  color: var(--text-soft);
-  opacity: 0.88;
-}
-
-.np-fallback {
-  font-size: 1.15rem;
-  color: var(--text-soft);
-  opacity: 0.9;
-  line-height: 1.35;
-}
-
-
     @media (max-width: 900px) {
       .ticker-label { display: none; }
       .neon-qr img { width: 44px; height: 44px; }
       .neon-qr-text { display: none; }
       .board-main { flex-direction: column; }
       .menu-column { width: 100%; }
-      .nowplaying-pip { display: none; }
     }
   </style>
 </head>
@@ -625,31 +469,6 @@
       <div class="menu-column" id="menuColumnRight"></div>
     </main>
 
-    <!-- NOW PLAYING (Last.fm) -->
-    <div class="nowplaying-pip" id="nowPlayingWidget" aria-label="Now Playing">
-      <div class="np-art">
-        <img id="npArtImg" alt="Album art" src="" />
-      </div>
-
-      <div class="np-meta">
-        <div class="np-kicker">
-          <div class="np-label">Music</div>
-          <div class="np-pill" id="npPill">
-            <span class="np-pill-dot"></span>
-            <span id="npPillText">Loading…</span>
-          </div>
-        </div>
-
-        <div class="np-track" id="npTrack">Loading…</div>
-        <div class="np-artist" id="npArtist">—</div>
-        <div class="np-time" id="npTime">—</div>
-
-        <div class="np-fallback" id="npFallback" style="display:none;">
-          Waiting for scrobbles… start playing Apple Music and it’ll show up here.
-        </div>
-      </div>
-    </div>
-
     <footer class="board-footer">
       <div class="ticker-shell">
         <div class="ticker-label">
@@ -676,388 +495,403 @@
   </div>
 
   <script>
-  // ========= TAP LIST VIA GOOGLE SHEETS =========
-  const GOOGLE_SHEET_CSV_URL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8XJ2EmSMTcR_XrbIegnEEZvGCmix6h9EnEgQi-QwUpIM0JQ0GkdtbiD1X5V29gdG_S81hKd3Eh6QA/pub?output=csv";
+    // ========= TAP LIST VIA GOOGLE SHEETS =========
+    const GOOGLE_SHEET_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8XJ2EmSMTcR_XrbIegnEEZvGCmix6h9EnEgQi-QwUpIM0JQ0GkdtbiD1X5V29gdG_S81hKd3Eh6QA/pub?output=csv";
 
-  const CATEGORY_FILTERS = [];
-  let BEERS = [];
+    const CATEGORY_FILTERS = [];
+    let BEERS = [];
 
-  const boardUpdated = document.getElementById("boardUpdated");
+    const boardUpdated = document.getElementById("boardUpdated");
 
-  function parseCSV(csv) {
-    const lines = csv.trim().split("\n");
-    if (lines.length < 2) return [];
-    const headers = lines[0].split(",").map(h => h.trim());
-    const beers = [];
-    for (let i = 1; i < lines.length; i++) {
-      const row = lines[i].split(",").map(c => c.trim());
-      if (row.length === 1 && row[0] === "") continue;
-      const obj = {};
-      headers.forEach((h, idx) => { obj[h] = row[idx] || ""; });
-      beers.push(obj);
-    }
-    return beers;
-  }
+    function parseCSV(csv) {
+      const lines = csv.trim().split("\n");
+      if (lines.length < 2) return [];
 
-  async function fetchBeersFromSheet() {
-    if (!GOOGLE_SHEET_CSV_URL) return;
-    try {
-      // cache-bust + no-store (helps FireTV/Yodeck)
-      const url = GOOGLE_SHEET_CSV_URL + "&_=" + Date.now();
-      const res = await fetch(url, { cache: "no-store" });
-      const text = await res.text();
-      BEERS = parseCSV(text);
-      buildMenu();
-    } catch (e) {
-      console.error("Error loading beer sheet:", e);
-    }
-  }
+      const headers = lines[0].split(",").map(h => h.trim());
+      const beers = [];
 
-  function buildMenu() {
-    const leftCol = document.getElementById("menuColumnLeft");
-    const rightCol = document.getElementById("menuColumnRight");
-    leftCol.innerHTML = "";
-    rightCol.innerHTML = "";
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split(",").map(c => c.trim());
+        if (row.length === 1 && row[0] === "") continue;
 
-    let beers = [...BEERS];
-
-    beers = beers.filter((beer) => {
-      const activeStr = (beer.active || beer.Active || "").toString().toLowerCase();
-      const isActive = activeStr === "" || activeStr === "true" || activeStr === "yes" || activeStr === "y" || activeStr === "1";
-      if (!isActive) return false;
-      if (CATEGORY_FILTERS.length === 0) return true;
-      const cat = (beer.category || beer.Category || "").toString().trim();
-      return CATEGORY_FILTERS.includes(cat);
-    });
-
-    beers.sort((a, b) => {
-      const ca = (a.category || a.Category || "").toString();
-      const cb = (b.category || b.Category || "").toString();
-      if (ca < cb) return -1;
-      if (ca > cb) return 1;
-      const ta = parseInt(a.tap || a.Tap || "0", 10) || 0;
-      const tb = parseInt(b.tap || b.Tap || "0", 10) || 0;
-      return ta - tb;
-    });
-
-    const mid = Math.ceil(beers.length / 2);
-    const leftBeers = beers.slice(0, mid);
-    const rightBeers = beers.slice(mid);
-
-    function renderColumn(list, container) {
-      let lastCategory = null;
-
-      list.forEach((beer) => {
-        const cat = (beer.category || beer.Category || "").toString().trim();
-
-        if (cat && cat !== lastCategory) {
-          const header = document.createElement("div");
-          header.className = "section-label";
-          header.textContent = cat;
-          container.appendChild(header);
-          lastCategory = cat;
-        }
-
-        const row = document.createElement("div");
-        row.className = "beer-row";
-
-        const top = document.createElement("div");
-        top.className = "beer-top";
-
-        const name = document.createElement("div");
-        name.className = "beer-name";
-        name.textContent = beer.name || "";
-
-        const rightMeta = document.createElement("div");
-        rightMeta.style.display = "flex";
-        rightMeta.style.flexShrink = "0";
-        rightMeta.style.alignItems = "center";
-        rightMeta.style.gap = "6px";
-
-        const tapVal = beer.tap || beer.Tap || "";
-        if (tapVal) {
-          const tap = document.createElement("span");
-          tap.className = "tap-badge";
-          tap.textContent = `Tap ${tapVal}`;
-          rightMeta.appendChild(tap);
-        }
-
-        const featStr = (beer.featured || beer.Featured || "").toString().toLowerCase();
-        const isFeatured = featStr === "true" || featStr === "yes" || featStr === "y" || featStr === "1";
-
-        if (isFeatured) {
-          const feat = document.createElement("span");
-          feat.className = "featured-tag";
-          feat.textContent = "Featured";
-          rightMeta.appendChild(feat);
-        }
-
-        top.appendChild(name);
-        top.appendChild(rightMeta);
-
-        const bottom = document.createElement("div");
-        bottom.className = "beer-bottom";
-
-        const style = document.createElement("div");
-        style.className = "beer-style";
-        style.textContent = beer.style || beer.brewery || "";
-
-        const price = document.createElement("div");
-        price.className = "beer-price";
-        price.textContent = beer.price || "";
-
-        bottom.appendChild(style);
-        bottom.appendChild(price);
-
-        const metaInline = document.createElement("div");
-        metaInline.className = "beer-meta-inline";
-        const bits = [];
-        if (beer.abv) bits.push(beer.abv);
-        if (beer.ibu) bits.push(beer.ibu);
-        if (beer.pour) bits.push(beer.pour);
-        metaInline.textContent = bits.join(" · ");
-
-        row.appendChild(top);
-        if (bits.length) row.appendChild(metaInline);
-        row.appendChild(bottom);
-
-        container.appendChild(row);
-      });
+        const obj = {};
+        headers.forEach((h, idx) => {
+          obj[h] = row[idx] || "";
+        });
+        beers.push(obj);
+      }
+      return beers;
     }
 
-    renderColumn(leftBeers, leftCol);
-    renderColumn(rightBeers, rightCol);
-
-    if (boardUpdated) {
-      const now = new Date();
-      boardUpdated.textContent = "Updated " + now.toLocaleTimeString();
-    }
-  }
-
-  // ========= TICKER CONFIG (Untappd) =========
-  const VENUE_RSS_URL = "https://untappd.com/rss/venue/9899874";
-  const REFRESH_MS = 90000;
-  const MAX_AGE_HOURS = 72;
-
-  const tickerTrack = document.getElementById("tickerTrack");
-  const statusTime = document.getElementById("statusTime");
-
-  let tickerData = [];
-  let tickerIndex = 0;
-  let tickerRotationTimer = null;
-
-  function timeAgo(dateString) {
-    const then = new Date(dateString);
-    if (isNaN(then)) return "";
-    const now = new Date();
-    const diffMs = now - then;
-    const minutes = Math.floor(diffMs / 60000);
-    const hours = Math.floor(minutes / 60);
-
-    if (minutes < 1) return "just now";
-    if (minutes < 60) return `${minutes} min ago`;
-    if (hours < 24) return `${hours} hr${hours !== 1 ? "s" : ""} ago`;
-    const days = Math.floor(hours / 24);
-    return `${days} day${days !== 1 ? "s" : ""} ago`;
-  }
-
-  function isRecentEnough(dateString) {
-    const then = new Date(dateString);
-    if (isNaN(then)) return false;
-    const now = new Date();
-    const diffMs = now - then;
-    const hours = diffMs / (1000 * 60 * 60);
-    return hours <= MAX_AGE_HOURS;
-  }
-
-  function cleanBeerName(name) {
-    if (!name) return "";
-    return name.replace(/^(a |an )/i, "").trim();
-  }
-
-  function parseRating(item) {
-    const raw = (item.description || "") + " " + (item.content || "");
-    const text = raw.replace(/<[^>]+>/g, " ");
-
-    let match = text.match(/\(([0-9.]+)\s*\/\s*5/i);
-    if (match) return match[1];
-
-    match = text.match(/([0-9.]+)\s*\/\s*5/i);
-    if (match) return match[1];
-
-    match = text.match(/Rating:\s*([0-9.]+)/i);
-    if (match) return match[1];
-
-    return "";
-  }
-
-  function parseUntappdTitle(title) {
-    let user = "";
-    let beer = "";
-    let brewery = "";
-
-    if (!title) return { user, beer, brewery };
-
-    let base = title;
-    const atIndex = base.toLowerCase().lastIndexOf(" at ");
-    if (atIndex !== -1) base = base.slice(0, atIndex);
-
-    let parts = base.split(" is drinking ");
-    if (parts.length === 1) parts = base.split(" drank ");
-
-    let rest = "";
-    if (parts.length > 1) {
-      user = parts[0].trim();
-      rest = parts[1].trim();
-    } else {
-      rest = base.trim();
-    }
-
-    let beerCandidate = rest;
-    let breweryCandidate = "";
-
-    const bySplit = rest.split(" by ");
-    if (bySplit.length > 1) {
-      beerCandidate = bySplit[0].trim();
-      breweryCandidate = bySplit.slice(1).join(" by ").trim();
-    }
-
-    if (!breweryCandidate) {
-      const parenMatch = beerCandidate.match(/\(([^)]+)\)\s*$/);
-      if (parenMatch) {
-        breweryCandidate = parenMatch[1].trim();
-        beerCandidate = beerCandidate.replace(/\s*\([^)]+\)\s*$/, "").trim();
+    async function fetchBeersFromSheet() {
+      try {
+        const url = GOOGLE_SHEET_CSV_URL + "&_=" + Date.now();
+        const res = await fetch(url, { cache: "no-store" });
+        const text = await res.text();
+        BEERS = parseCSV(text);
+        buildMenu();
+      } catch (e) {
+        console.error("Error loading beer sheet:", e);
       }
     }
 
-    beer = beerCandidate;
-    brewery = breweryCandidate;
-    return { user, beer, brewery };
-  }
+    function buildMenu() {
+      const leftCol = document.getElementById("menuColumnLeft");
+      const rightCol = document.getElementById("menuColumnRight");
+      leftCol.innerHTML = "";
+      rightCol.innerHTML = "";
 
-  function buildTicker(items) {
-    tickerTrack.innerHTML = "";
-    if (tickerRotationTimer) {
-      clearInterval(tickerRotationTimer);
-      tickerRotationTimer = null;
+      let beers = [...BEERS];
+
+      beers = beers.filter((beer) => {
+        const activeStr = (beer.active || beer.Active || "").toString().toLowerCase();
+        const isActive =
+          activeStr === "" ||
+          activeStr === "true" ||
+          activeStr === "yes" ||
+          activeStr === "y" ||
+          activeStr === "1";
+        if (!isActive) return false;
+
+        if (CATEGORY_FILTERS.length === 0) return true;
+        const cat = (beer.category || beer.Category || "").toString().trim();
+        return CATEGORY_FILTERS.includes(cat);
+      });
+
+      beers.sort((a, b) => {
+        const ca = (a.category || a.Category || "").toString();
+        const cb = (b.category || b.Category || "").toString();
+        if (ca < cb) return -1;
+        if (ca > cb) return 1;
+        const ta = parseInt(a.tap || a.Tap || "0", 10) || 0;
+        const tb = parseInt(b.tap || b.Tap || "0", 10) || 0;
+        return ta - tb;
+      });
+
+      const mid = Math.ceil(beers.length / 2);
+      const leftBeers = beers.slice(0, mid);
+      const rightBeers = beers.slice(mid);
+
+      function renderColumn(list, container) {
+        let lastCategory = null;
+
+        list.forEach((beer) => {
+          const cat = (beer.category || beer.Category || "").toString().trim();
+
+          if (cat && cat !== lastCategory) {
+            const header = document.createElement("div");
+            header.className = "section-label";
+            header.textContent = cat;
+            container.appendChild(header);
+            lastCategory = cat;
+          }
+
+          const row = document.createElement("div");
+          row.className = "beer-row";
+
+          const top = document.createElement("div");
+          top.className = "beer-top";
+
+          const name = document.createElement("div");
+          name.className = "beer-name";
+          name.textContent = beer.name || "";
+
+          const rightMeta = document.createElement("div");
+          rightMeta.style.display = "flex";
+          rightMeta.style.flexShrink = "0";
+          rightMeta.style.alignItems = "center";
+          rightMeta.style.gap = "6px";
+
+          const tapVal = beer.tap || beer.Tap || "";
+          if (tapVal) {
+            const tap = document.createElement("span");
+            tap.className = "tap-badge";
+            tap.textContent = `Tap ${tapVal}`;
+            rightMeta.appendChild(tap);
+          }
+
+          const featStr = (beer.featured || beer.Featured || "").toString().toLowerCase();
+          const isFeatured =
+            featStr === "true" || featStr === "yes" || featStr === "y" || featStr === "1";
+
+          if (isFeatured) {
+            const feat = document.createElement("span");
+            feat.className = "featured-tag";
+            feat.textContent = "Featured";
+            rightMeta.appendChild(feat);
+          }
+
+          top.appendChild(name);
+          top.appendChild(rightMeta);
+
+          const metaInline = document.createElement("div");
+          metaInline.className = "beer-meta-inline";
+          const bits = [];
+          if (beer.abv) bits.push(beer.abv);
+          if (beer.ibu) bits.push(beer.ibu);
+          if (beer.pour) bits.push(beer.pour);
+          metaInline.textContent = bits.join(" · ");
+
+          const bottom = document.createElement("div");
+          bottom.className = "beer-bottom";
+
+          const style = document.createElement("div");
+          style.className = "beer-style";
+          style.textContent = beer.style || beer.brewery || "";
+
+          const price = document.createElement("div");
+          price.className = "beer-price";
+          price.textContent = beer.price || "";
+
+          bottom.appendChild(style);
+          bottom.appendChild(price);
+
+          row.appendChild(top);
+          if (bits.length) row.appendChild(metaInline);
+          row.appendChild(bottom);
+
+          container.appendChild(row);
+        });
+      }
+
+      renderColumn(leftBeers, leftCol);
+      renderColumn(rightBeers, rightCol);
+
+      if (boardUpdated) {
+        const now = new Date();
+        boardUpdated.textContent = "Updated " + now.toLocaleTimeString();
+      }
     }
 
-    if (!items || !items.length) {
-      renderEmptyTicker("No recent check-ins.");
-      return;
+    // ========= TICKER CONFIG (Untappd) =========
+    const VENUE_RSS_URL = "https://untappd.com/rss/venue/9899874";
+    const REFRESH_MS = 90000;
+    const MAX_AGE_HOURS = 72;
+
+    const tickerTrack = document.getElementById("tickerTrack");
+    const statusTime = document.getElementById("statusTime");
+
+    let tickerData = [];
+    let tickerIndex = 0;
+    let tickerRotationTimer = null;
+
+    function timeAgo(dateString) {
+      const then = new Date(dateString);
+      if (isNaN(then)) return "";
+      const now = new Date();
+      const diffMs = now - then;
+      const minutes = Math.floor(diffMs / 60000);
+      const hours = Math.floor(minutes / 60);
+
+      if (minutes < 1) return "just now";
+      if (minutes < 60) return `${minutes} min ago`;
+      if (hours < 24) return `${hours} hr${hours !== 1 ? "s" : ""} ago`;
+      const days = Math.floor(hours / 24);
+      return `${days} day${days !== 1 ? "s" : ""} ago`;
     }
 
-    const recentItems = items.filter((item) => isRecentEnough(item.pubDate));
-    if (!recentItems.length) {
-      renderEmptyTicker("No check-ins in the selected time window.");
-      return;
+    function isRecentEnough(dateString) {
+      const then = new Date(dateString);
+      if (isNaN(then)) return false;
+      const now = new Date();
+      const diffMs = now - then;
+      const hours = diffMs / (1000 * 60 * 60);
+      return hours <= MAX_AGE_HOURS;
     }
 
-    const maxItems = Math.min(recentItems.length, 20);
-    tickerData = recentItems.slice(0, maxItems);
-    tickerIndex = 0;
-
-    renderTickerCard(tickerData[tickerIndex], true);
-
-    if (tickerData.length > 1) {
-      tickerRotationTimer = setInterval(() => {
-        tickerIndex = (tickerIndex + 1) % tickerData.length;
-        renderTickerCard(tickerData[tickerIndex], false);
-      }, 8000);
+    function cleanBeerName(name) {
+      if (!name) return "";
+      return name.replace(/^(a |an )/i, "").trim();
     }
-  }
 
-  function renderEmptyTicker(message) {
-    const card = document.createElement("div");
-    card.className = "ticker-card";
-    card.innerHTML = `
-      <div class="ticker-line-main">
-        <span class="ticker-empty">${message}</span>
-      </div>
-    `;
-    tickerTrack.appendChild(card);
-  }
+    function parseRating(item) {
+      const raw = (item.description || "") + " " + (item.content || "");
+      const text = raw.replace(/<[^>]+>/g, " ");
 
-  function renderTickerCard(item, immediate) {
-    const { user, beer, brewery } = parseUntappdTitle(item.title);
-    const cleanBeer = cleanBeerName(beer);
-    const rating = parseRating(item);
-    const time = timeAgo(item.pubDate);
+      let match = text.match(/\(([0-9.]+)\s*\/\s*5/i);
+      if (match) return match[1];
 
-    const oldCard = tickerTrack.querySelector(".ticker-card");
+      match = text.match(/([0-9.]+)\s*\/\s*5/i);
+      if (match) return match[1];
 
-    const newCard = document.createElement("div");
-    newCard.className = "ticker-card";
-    newCard.innerHTML = `
-      <div class="ticker-line-main">
-        <span class="ticker-user">${user || "Someone"}</span>
-        ${cleanBeer ? '<span class="ticker-separator">·</span>' : ""}
-        ${
-          cleanBeer
-            ? `<span class="ticker-beer">${cleanBeer}${brewery ? " by " + brewery : ""}</span>`
-            : ""
+      match = text.match(/Rating:\s*([0-9.]+)/i);
+      if (match) return match[1];
+
+      return "";
+    }
+
+    function parseUntappdTitle(title) {
+      let user = "";
+      let beer = "";
+      let brewery = "";
+      if (!title) return { user, beer, brewery };
+
+      let base = title;
+      const atIndex = base.toLowerCase().lastIndexOf(" at ");
+      if (atIndex !== -1) base = base.slice(0, atIndex);
+
+      let parts = base.split(" is drinking ");
+      if (parts.length === 1) parts = base.split(" drank ");
+
+      let rest = "";
+      if (parts.length > 1) {
+        user = parts[0].trim();
+        rest = parts[1].trim();
+      } else {
+        rest = base.trim();
+      }
+
+      let beerCandidate = rest;
+      let breweryCandidate = "";
+
+      const bySplit = rest.split(" by ");
+      if (bySplit.length > 1) {
+        beerCandidate = bySplit[0].trim();
+        breweryCandidate = bySplit.slice(1).join(" by ").trim();
+      }
+
+      if (!breweryCandidate) {
+        const parenMatch = beerCandidate.match(/\(([^)]+)\)\s*$/);
+        if (parenMatch) {
+          breweryCandidate = parenMatch[1].trim();
+          beerCandidate = beerCandidate.replace(/\s*\([^)]+\)\s*$/, "").trim();
         }
-      </div>
-      <div class="ticker-line-sub">
-        ${rating ? `<span class="ticker-rating">Rated ${rating}/5</span>` : ""}
-        ${rating && time ? '<span class="ticker-separator">·</span>' : ""}
-        ${time ? `<span class="ticker-time">${time}</span>` : ""}
-      </div>
-    `;
+      }
 
-    if (immediate || !oldCard) {
-      tickerTrack.innerHTML = "";
-      tickerTrack.appendChild(newCard);
-      return;
+      beer = beerCandidate;
+      brewery = breweryCandidate;
+      return { user, beer, brewery };
     }
 
-    newCard.classList.add("ticker-card--incoming");
-    tickerTrack.appendChild(newCard);
+    function buildTicker(items) {
+      tickerTrack.innerHTML = "";
 
-    requestAnimationFrame(() => {
-      oldCard.classList.add("ticker-card--outgoing");
-      newCard.classList.add("ticker-card--animate-in");
-    });
+      if (tickerRotationTimer) {
+        clearInterval(tickerRotationTimer);
+        tickerRotationTimer = null;
+      }
 
-    oldCard.addEventListener("animationend", () => {
-      if (oldCard.parentNode === tickerTrack) tickerTrack.removeChild(oldCard);
-    }, { once: true });
-
-    newCard.addEventListener("animationend", () => {
-      newCard.classList.remove("ticker-card--incoming", "ticker-card--animate-in");
-    }, { once: true });
-  }
-
-  async function fetchCheckins() {
-    try {
-      statusTime.textContent = "Updating…";
-
-      const rssUrl = encodeURIComponent(VENUE_RSS_URL);
-      // cache bust rss2json request too
-      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&_=${Date.now()}`;
-
-      const res = await fetch(apiUrl, { cache: "no-store" });
-      if (!res.ok) {
-        statusTime.textContent = "Feed error";
+      if (!items || !items.length) {
+        renderEmptyTicker("No recent check-ins.");
         return;
       }
 
-      const data = await res.json();
-      buildTicker(data.items || []);
-      statusTime.textContent = new Date().toLocaleTimeString();
-    } catch (err) {
-      console.error(err);
-      statusTime.textContent = "Network error";
+      const recentItems = items.filter((item) => isRecentEnough(item.pubDate));
+      if (!recentItems.length) {
+        renderEmptyTicker("No check-ins in the selected time window.");
+        return;
+      }
+
+      const maxItems = Math.min(recentItems.length, 20);
+      tickerData = recentItems.slice(0, maxItems);
+      tickerIndex = 0;
+
+      renderTickerCard(tickerData[tickerIndex], true);
+
+      if (tickerData.length > 1) {
+        tickerRotationTimer = setInterval(() => {
+          tickerIndex = (tickerIndex + 1) % tickerData.length;
+          renderTickerCard(tickerData[tickerIndex], false);
+        }, 8000);
+      }
     }
-  }
 
-  function startAutoRefresh() {
-    fetchCheckins();
-    setInterval(fetchCheckins, REFRESH_MS);
-  }
+    function renderEmptyTicker(message) {
+      const card = document.createElement("div");
+      card.className = "ticker-card";
+      card.innerHTML = `
+        <div class="ticker-line-main">
+          <span class="ticker-empty">${message}</span>
+        </div>
+      `;
+      tickerTrack.appendChild(card);
+    }
 
-</script>
+    function renderTickerCard(item, immediate) {
+      const { user, beer, brewery } = parseUntappdTitle(item.title);
+      const cleanBeer = cleanBeerName(beer);
+      const rating = parseRating(item);
+      const time = timeAgo(item.pubDate);
 
+      const oldCard = tickerTrack.querySelector(".ticker-card");
+
+      const newCard = document.createElement("div");
+      newCard.className = "ticker-card";
+      newCard.innerHTML = `
+        <div class="ticker-line-main">
+          <span class="ticker-user">${user || "Someone"}</span>
+          ${cleanBeer ? '<span class="ticker-separator">·</span>' : ""}
+          ${
+            cleanBeer
+              ? `<span class="ticker-beer">${cleanBeer}${brewery ? " by " + brewery : ""}</span>`
+              : ""
+          }
+        </div>
+        <div class="ticker-line-sub">
+          ${rating ? `<span class="ticker-rating">Rated ${rating}/5</span>` : ""}
+          ${rating && time ? '<span class="ticker-separator">·</span>' : ""}
+          ${time ? `<span class="ticker-time">${time}</span>` : ""}
+        </div>
+      `;
+
+      if (immediate || !oldCard) {
+        tickerTrack.innerHTML = "";
+        tickerTrack.appendChild(newCard);
+        return;
+      }
+
+      newCard.classList.add("ticker-card--incoming");
+      tickerTrack.appendChild(newCard);
+
+      requestAnimationFrame(() => {
+        oldCard.classList.add("ticker-card--outgoing");
+        newCard.classList.add("ticker-card--animate-in");
+      });
+
+      oldCard.addEventListener("animationend", () => {
+        if (oldCard.parentNode === tickerTrack) tickerTrack.removeChild(oldCard);
+      }, { once: true });
+
+      newCard.addEventListener("animationend", () => {
+        newCard.classList.remove("ticker-card--incoming", "ticker-card--animate-in");
+      }, { once: true });
+    }
+
+    async function fetchCheckins() {
+      try {
+        statusTime.textContent = "Updating…";
+
+        const rssUrl = encodeURIComponent(VENUE_RSS_URL);
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}&_=${Date.now()}`;
+
+        const res = await fetch(apiUrl, { cache: "no-store" });
+        if (!res.ok) {
+          statusTime.textContent = "Feed error";
+          return;
+        }
+
+        const data = await res.json();
+        buildTicker(data.items || []);
+        statusTime.textContent = new Date().toLocaleTimeString();
+      } catch (err) {
+        console.error(err);
+        statusTime.textContent = "Network error";
+      }
+    }
+
+    function startAutoRefresh() {
+      fetchCheckins();
+      setInterval(fetchCheckins, REFRESH_MS);
+    }
+
+    // ✅ THIS is what your current file is missing (it makes beers + ticker actually run)
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchBeersFromSheet();
+      startAutoRefresh();
+      // optional: refresh beers every 5 min
+      setInterval(fetchBeersFromSheet, 5 * 60 * 1000);
+    });
+  </script>
 </body>
 </html>
