@@ -62,52 +62,64 @@
     }
 
     /* === HEADER === */
-    .board-header {
-      flex: 0 0 auto;
-      padding: 12px 20px 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: #101119;
-      border-bottom: 1px solid var(--divider);
-    }
+    /* === HEADER (BIGGER / BANNER STYLE) === */
+.board-header {
+  flex: 0 0 auto;
+  padding: 18px 28px 14px;       /* more vertical space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;                      /* more breathing room */
+  background: #101119;
+  border-bottom: 1px solid var(--divider);
+}
 
-    .venue-name {
-      font-size: 2.4rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent-yellow-soft);
-      text-align: center;
-    }
+.venue-name {
+  width: 100%;
+  text-align: center;
+  font-size: clamp(3.2rem, 4.2vw, 5.2rem); /* big + responsive */
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-yellow-soft);
 
-    .header-right {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
+  /* helps it feel “end-to-end” */
+  padding: 0 14px;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-    .header-qr-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
+/* Header right area still centered, just larger */
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
 
-    .section-label {
-      font-size: 1.25rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-soft);
-    }
+.header-qr-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
 
-    .small-timestamp {
-      font-size: 1rem;
-      color: var(--text-muted);
-    }
+/* Make "On Tap" + category headers bigger in general */
+.section-label {
+  font-size: 1.45rem;             /* bigger */
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-soft);
+}
+
+.small-timestamp {
+  font-size: 1.2rem;              /* bigger timestamp */
+  color: var(--text-muted);
+}
+
 
     /* === MAIN MENU AREA === */
     .board-main {
@@ -358,61 +370,63 @@
 
     /* === QR BLOCKS (single neon) === */
     .neon-qr {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top left, #ffef9f 0%, #ff6bd5 40%, #4fd1ff 80%, #1b1b2f 100%);
-      position: relative;
-      overflow: hidden;
-      animation: qrGlow 4.5s ease-in-out infinite;
-      box-shadow:
-        0 0 8px rgba(255, 255, 255, 0.4),
-        0 0 18px rgba(255, 107, 213, 0.55),
-        0 0 26px rgba(79, 209, 255, 0.55);
-    }
+  display: flex;
+  align-items: center;
+  gap: 14px;                      /* more spacing */
+  padding: 10px 16px;             /* bigger bubble */
+  border-radius: 999px;
+  background: radial-gradient(circle at top left, #ffef9f 0%, #ff6bd5 40%, #4fd1ff 80%, #1b1b2f 100%);
+  position: relative;
+  overflow: hidden;
+  animation: qrGlow 4.5s ease-in-out infinite;
+  box-shadow:
+    0 0 8px rgba(255, 255, 255, 0.4),
+    0 0 18px rgba(255, 107, 213, 0.55),
+    0 0 26px rgba(79, 209, 255, 0.55);
+}
 
     .neon-qr::before {
-      content: "";
-      position: absolute;
-      inset: 2px;
-      border-radius: 999px;
-      background: #080814;
-      opacity: 0.92;
-    }
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 999px;
+  background: #080814;
+  opacity: 0.92;
+}
 
     .neon-qr-inner {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;                      /* more spacing inside */
+}
 
-    .neon-qr-text {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: #e5e7ff;
-    }
+.neon-qr-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 1.05rem;             /* bigger text */
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #e5e7ff;
+  line-height: 1.15;
+}
 
-    .neon-qr-text strong {
-      color: #ffef9f;
-      font-size: 0.95rem;
-    }
+.neon-qr-text strong {
+  color: #ffef9f;
+  font-size: 1.15rem;             /* bigger emphasis */
+  letter-spacing: 0.14em;
+}
 
-    .neon-qr img {
-      width: 70px;
-      height: 70px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: #050509;
-      box-shadow:
-        0 0 8px rgba(255,255,255,0.25),
-        0 0 14px rgba(255, 239, 159, 0.45);
-    }
+   .neon-qr img {
+  width: 92px;                    /* bigger QR */
+  height: 92px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: #050509;
+  box-shadow:
+    0 0 8px rgba(255,255,255,0.25),
+    0 0 14px rgba(255, 239, 159, 0.45);
+}
 
     @keyframes qrGlow {
       0% {
