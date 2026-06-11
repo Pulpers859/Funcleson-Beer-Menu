@@ -133,13 +133,12 @@
       min-width: 0;
     }
 
-   beer-row {
-  padding: 10px 14px;
-  border-radius: 6px;
-
-  background: rgba(24, 25, 32, 0.65);
-  border: 1px solid rgba(39, 41, 53, 0.45);
-}
+    .beer-row {
+      padding: 10px 14px;
+      border-radius: 6px;
+      background: rgba(24, 25, 32, 0.65);
+      border: 1px solid rgba(39, 41, 53, 0.45);
+    }
 
     .beer-top {
       display: flex;
@@ -515,20 +514,56 @@
 
     const boardUpdated = document.getElementById("boardUpdated");
 
+    // RFC 4180-style CSV parser: handles quoted fields, escaped quotes ("")
+    // and commas/newlines inside quotes.
     function parseCSV(csv) {
-      const lines = csv.trim().split("\n");
-      if (lines.length < 2) return [];
+      const rows = [];
+      let row = [];
+      let field = "";
+      let inQuotes = false;
 
-      const headers = lines[0].split(",").map(h => h.trim());
+      for (let i = 0; i < csv.length; i++) {
+        const ch = csv[i];
+        if (inQuotes) {
+          if (ch === '"') {
+            if (csv[i + 1] === '"') { field += '"'; i++; }
+            else inQuotes = false;
+          } else {
+            field += ch;
+          }
+        } else if (ch === '"') {
+          inQuotes = true;
+        } else if (ch === ",") {
+          row.push(field);
+          field = "";
+        } else if (ch === "\n" || ch === "\r") {
+          if (ch === "\r" && csv[i + 1] === "\n") i++;
+          row.push(field);
+          field = "";
+          rows.push(row);
+          row = [];
+        } else {
+          field += ch;
+        }
+      }
+      if (field !== "" || row.length) {
+        row.push(field);
+        rows.push(row);
+      }
+
+      if (rows.length < 2) return [];
+
+      // Lowercase headers so sheet columns work no matter how they're capitalized.
+      const headers = rows[0].map(h => h.trim().toLowerCase());
       const beers = [];
 
-      for (let i = 1; i < lines.length; i++) {
-        const row = lines[i].split(",").map(c => c.trim());
-        if (row.length === 1 && row[0] === "") continue;
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i];
+        if (cells.every(c => c.trim() === "")) continue;
 
         const obj = {};
         headers.forEach((h, idx) => {
-          obj[h] = row[idx] || "";
+          obj[h] = (cells[idx] || "").trim();
         });
         beers.push(obj);
       }
@@ -539,11 +574,22 @@
       try {
         const url = GOOGLE_SHEET_CSV_URL + "&_=" + Date.now();
         const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error("Sheet request failed: " + res.status);
         const text = await res.text();
         BEERS = parseCSV(text);
         buildMenu();
       } catch (e) {
         console.error("Error loading beer sheet:", e);
+        // Only show an error if we have nothing to display; otherwise keep
+        // the last good menu on screen.
+        if (!BEERS.length) {
+          const leftCol = document.getElementById("menuColumnLeft");
+          leftCol.innerHTML = "";
+          const msg = document.createElement("div");
+          msg.className = "ticker-empty";
+          msg.textContent = "Menu unavailable — retrying shortly…";
+          leftCol.appendChild(msg);
+        }
       }
     }
 
@@ -556,7 +602,7 @@
       let beers = [...BEERS];
 
       beers = beers.filter((beer) => {
-        const activeStr = (beer.active || beer.Active || "").toString().toLowerCase();
+        const activeStr = (beer.active || "").toLowerCase();
         const isActive =
           activeStr === "" ||
           activeStr === "true" ||
@@ -566,55 +612,61 @@
         if (!isActive) return false;
 
         if (CATEGORY_FILTERS.length === 0) return true;
-        const cat = (beer.category || beer.Category || "").toString().trim();
-        return CATEGORY_FILTERS.includes(cat);
+        return CATEGORY_FILTERS.includes((beer.category || "").trim());
       });
 
       beers.sort((a, b) => {
-        const ca = (a.category || a.Category || "").toString();
-        const cb = (b.category || b.Category || "").toString();
+        const ca = (a.category || "");
+        const cb = (b.category || "");
         if (ca < cb) return -1;
         if (ca > cb) return 1;
-        const ta = parseInt(a.tap || a.Tap || "0", 10) || 0;
-        const tb = parseInt(b.tap || b.Tap || "0", 10) || 0;
+        const ta = parseInt(a.tap, 10) || 0;
+        const tb = parseInt(b.tap, 10) || 0;
         return ta - tb;
       });
 
-// --- NEW: group beers by category so categories stay together in columns ---
-function groupByCategory(beers) {
-  const groups = {};
-  beers.forEach((beer) => {
-    const cat = ((beer.category || beer.Category || "Other").toString().trim()) || "Other";
-    if (!groups[cat]) groups[cat] = [];
-    groups[cat].push(beer);
-  });
-  return groups;
-}
-      
-     const grouped = groupByCategory(beers);
+      // Group beers by category so categories stay together in columns
+      function groupByCategory(beers) {
+        const groups = {};
+        beers.forEach((beer) => {
+          const cat = (beer.category || "").trim() || "Other";
+          if (!groups[cat]) groups[cat] = [];
+          groups[cat].push(beer);
+        });
+        return groups;
+      }
 
-const leftBeers = [];
-const rightBeers = [];
+      const grouped = groupByCategory(beers);
 
-let leftCount = 0;
-const MAX_PER_COLUMN = Math.ceil(beers.length / 2);
+      const leftBeers = [];
+      const rightBeers = [];
+      const half = Math.ceil(beers.length / 2);
 
-// Keep categories together when possible
-Object.entries(grouped).forEach(([category, list]) => {
-  if (leftCount + list.length <= MAX_PER_COLUMN) {
-    leftBeers.push(...list);
-    leftCount += list.length;
-  } else {
-    rightBeers.push(...list);
-  }
-});
+      // Keep categories together when possible. Once a category overflows to
+      // the right column, everything after it goes right too, so the sorted
+      // order reads correctly across the board.
+      let overflowed = false;
+      Object.values(grouped).forEach((list) => {
+        if (!overflowed && leftBeers.length + list.length <= half) {
+          leftBeers.push(...list);
+        } else {
+          overflowed = true;
+          rightBeers.push(...list);
+        }
+      });
+
+      // If a single oversized category left the first column empty, split it
+      // across both columns instead.
+      if (!leftBeers.length && rightBeers.length > 1) {
+        leftBeers.push(...rightBeers.splice(0, half));
+      }
 
 
       function renderColumn(list, container) {
         let lastCategory = null;
 
         list.forEach((beer) => {
-          const cat = (beer.category || beer.Category || "").toString().trim();
+          const cat = (beer.category || "").trim();
 
           if (cat && cat !== lastCategory) {
             const header = document.createElement("div");
@@ -634,10 +686,9 @@ Object.entries(grouped).forEach(([category, list]) => {
           name.className = "beer-name";
           name.textContent = beer.name || "";
 
-          // --- NEW: brewery line under the beer name ---
-const brewery = document.createElement("div");
-brewery.className = "beer-brewery";
-brewery.textContent = beer.brewery || beer.Brewery || "";
+          const brewery = document.createElement("div");
+          brewery.className = "beer-brewery";
+          brewery.textContent = beer.brewery || "";
 
           const rightMeta = document.createElement("div");
           rightMeta.style.display = "flex";
@@ -645,7 +696,7 @@ brewery.textContent = beer.brewery || beer.Brewery || "";
           rightMeta.style.alignItems = "center";
           rightMeta.style.gap = "6px";
 
-          const tapVal = beer.tap || beer.Tap || "";
+          const tapVal = beer.tap || "";
           if (tapVal) {
             const tap = document.createElement("span");
             tap.className = "tap-badge";
@@ -653,7 +704,7 @@ brewery.textContent = beer.brewery || beer.Brewery || "";
             rightMeta.appendChild(tap);
           }
 
-          const featStr = (beer.featured || beer.Featured || "").toString().toLowerCase();
+          const featStr = (beer.featured || "").toLowerCase();
           const isFeatured =
             featStr === "true" || featStr === "yes" || featStr === "y" || featStr === "1";
 
@@ -664,17 +715,17 @@ brewery.textContent = beer.brewery || beer.Brewery || "";
             rightMeta.appendChild(feat);
           }
 
-// --- NEW: name stack (beer name + brewery) ---
-const nameWrap = document.createElement("div");
-nameWrap.style.display = "flex";
-nameWrap.style.flexDirection = "column";
-nameWrap.style.minWidth = "0";
+          // Name stack (beer name + brewery)
+          const nameWrap = document.createElement("div");
+          nameWrap.style.display = "flex";
+          nameWrap.style.flexDirection = "column";
+          nameWrap.style.minWidth = "0";
 
-nameWrap.appendChild(name);
-if (brewery.textContent.trim()) nameWrap.appendChild(brewery);
+          nameWrap.appendChild(name);
+          if (brewery.textContent.trim()) nameWrap.appendChild(brewery);
 
-top.appendChild(nameWrap);
-top.appendChild(rightMeta);
+          top.appendChild(nameWrap);
+          top.appendChild(rightMeta);
 
           const metaInline = document.createElement("div");
           metaInline.className = "beer-meta-inline";
@@ -689,7 +740,7 @@ top.appendChild(rightMeta);
 
           const style = document.createElement("div");
           style.className = "beer-style";
-          style.textContent = beer.style || beer.brewery || "";
+          style.textContent = beer.style || "";
 
           const price = document.createElement("div");
           price.className = "beer-price";
@@ -749,6 +800,14 @@ top.appendChild(rightMeta);
       const diffMs = now - then;
       const hours = diffMs / (1000 * 60 * 60);
       return hours <= MAX_AGE_HOURS;
+    }
+
+    // Feed content (usernames, beer names) is external data — escape it
+    // before it goes anywhere near innerHTML.
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
     }
 
     function cleanBeerName(name) {
@@ -871,16 +930,16 @@ top.appendChild(rightMeta);
       newCard.className = "ticker-card";
       newCard.innerHTML = `
         <div class="ticker-line-main">
-          <span class="ticker-user">${user || "Someone"}</span>
+          <span class="ticker-user">${escapeHtml(user || "Someone")}</span>
           ${cleanBeer ? '<span class="ticker-separator">·</span>' : ""}
           ${
             cleanBeer
-              ? `<span class="ticker-beer">${cleanBeer}${brewery ? " by " + brewery : ""}</span>`
+              ? `<span class="ticker-beer">${escapeHtml(cleanBeer)}${brewery ? " by " + escapeHtml(brewery) : ""}</span>`
               : ""
           }
         </div>
         <div class="ticker-line-sub">
-          ${rating ? `<span class="ticker-rating">Rated ${rating}/5</span>` : ""}
+          ${rating ? `<span class="ticker-rating">Rated ${escapeHtml(rating)}/5</span>` : ""}
           ${rating && time ? '<span class="ticker-separator">·</span>' : ""}
           ${time ? `<span class="ticker-time">${time}</span>` : ""}
         </div>
@@ -909,61 +968,75 @@ top.appendChild(rightMeta);
       }, { once: true });
     }
 
+    let lastFeedKey = null;
+
     async function fetchCheckins() {
-  try {
-    statusTime.textContent = "Updating…";
+      try {
+        statusTime.textContent = "Updating…";
 
-    // Use a CORS-friendly proxy to avoid rss2json caching/staleness
-    const proxiedUrl =
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(VENUE_RSS_URL)}&_=${Date.now()}`;
+        // Use a CORS-friendly proxy to avoid rss2json caching/staleness
+        const proxiedUrl =
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(VENUE_RSS_URL)}&_=${Date.now()}`;
 
-    const res = await fetch(proxiedUrl, { cache: "no-store" });
-    if (!res.ok) {
-      statusTime.textContent = "Feed error";
-      return;
+        const res = await fetch(proxiedUrl, { cache: "no-store" });
+        if (!res.ok) {
+          statusTime.textContent = "Feed error";
+          return;
+        }
+
+        const xmlText = await res.text();
+
+        // Parse RSS XML -> items array compatible with buildTicker()
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, "text/xml");
+
+        if (xml.querySelector("parsererror")) {
+          statusTime.textContent = "Feed error";
+          return;
+        }
+
+        const nodes = Array.from(xml.querySelectorAll("channel > item"));
+
+        const items = nodes.map((node) => {
+          const title = node.querySelector("title")?.textContent?.trim() || "";
+          const pubDate = node.querySelector("pubDate")?.textContent?.trim() || "";
+          const description = node.querySelector("description")?.textContent || "";
+
+          return {
+            title,
+            pubDate,
+            description,
+            content: description, // so parseRating() still works
+          };
+        });
+
+        // Only rebuild when the feed actually changed, so the rotation isn't
+        // reset back to the first check-in on every refresh.
+        const feedKey = items.map(i => i.title + "|" + i.pubDate).join("\n");
+        if (feedKey !== lastFeedKey) {
+          lastFeedKey = feedKey;
+          buildTicker(items);
+        } else if (tickerData.length === 1) {
+          // Keep the "x min ago" text fresh when a single card sits on screen.
+          renderTickerCard(tickerData[0], true);
+        }
+
+        statusTime.textContent = new Date().toLocaleTimeString();
+      } catch (err) {
+        console.error(err);
+        statusTime.textContent = "Network error";
+      }
     }
-
-    const xmlText = await res.text();
-
-    // Parse RSS XML -> items array compatible with your existing buildTicker()
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(xmlText, "text/xml");
-
-    const nodes = Array.from(xml.querySelectorAll("channel > item"));
-
-    const items = nodes.map((node) => {
-      const title = node.querySelector("title")?.textContent?.trim() || "";
-      const pubDate = node.querySelector("pubDate")?.textContent?.trim() || "";
-      const description = node.querySelector("description")?.textContent || "";
-
-      return {
-        title,
-        pubDate,
-        description,
-        content: description, // so your parseRating() still works
-      };
-    });
-
-    buildTicker(items);
-    statusTime.textContent = new Date().toLocaleTimeString();
-  } catch (err) {
-    console.error(err);
-    statusTime.textContent = "Network error";
-  }
-}
-
 
     function startAutoRefresh() {
       fetchCheckins();
       setInterval(fetchCheckins, REFRESH_MS);
     }
 
-    // ✅ THIS is what your current file is missing (it makes beers + ticker actually run)
     document.addEventListener("DOMContentLoaded", () => {
       fetchBeersFromSheet();
       startAutoRefresh();
-      // optional: refresh beers every 5 min
-      setInterval(fetchBeersFromSheet, 5 * 60 * 1000);
+      setInterval(fetchBeersFromSheet, 5 * 60 * 1000); // refresh beers every 5 min
     });
   </script>
 </body>
