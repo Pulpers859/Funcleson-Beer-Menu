@@ -1,0 +1,36 @@
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Large media / design files (keep out of git)
+*.afdesign
+*.pdf
+*.docx
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.mov
+
+# Exceptions — track specific images needed by the app
+!photo-drop-qr.png
+
+# Media folders
+Video Board/Travel pictures/
+
+# Local config / secrets
+.env
+.env.local
+*.local.*
+Secrets.*
+
+# Node / build artifacts
+node_modules/
+dist/
+.cache/
+
+# IDE
+.vscode/
+.idea/

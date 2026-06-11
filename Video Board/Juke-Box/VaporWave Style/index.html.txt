@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vaporwave Jukebox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Vaporwave-ish font -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(
+        135deg,
+        #ff9a9e 0%,
+        #fad0c4 25%,
+        #fbc2eb 50%,
+        #a18cd1 75%,
+        #84fab0 100%
+      );
+      --card-bg: rgba(7, 5, 22, 0.78);
+      --accent: #fffdff;
+      --accent-soft: rgba(255, 255, 255, 0.8);
+      --accent-strong: #ffe66d;
+      --shadow-neon: 0 0 20px rgba(255, 255, 255, 0.35),
+                      0 0 40px rgba(137, 96, 255, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Syne", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-image: var(--bg-gradient);
+      background-size: 400% 400%;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3vh 3vw;
+    }
+
+    .frame {
+      width: 100%;
+      max-width: 1100px;
+      height: 100%;
+      max-height: 650px;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), rgba(7, 5, 22, 0.95));
+      border-radius: 28px;
+      box-shadow: var(--shadow-neon);
+      padding: 3vh 3vw;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      grid-template-rows: auto 1fr auto;
+      gap: 2vh 3vw;
+    }
+
+    .header {
+      grid-column: 1 / -1;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      font-size: 1.1rem;
+      color: var(--accent-soft);
+    }
+
+    .album-art-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .album-art {
+      width: min(100%, 340px);
+      aspect-ratio: 1 / 1;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      background: #150f2c;
+      box-shadow: var(--shadow-neon);
+    }
+
+    .album-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .album-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.1rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .album-placeholder span {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-top: 0.75rem;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: var(--accent-soft);
+    }
+
+    .track {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1.1;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .artist {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--accent-soft);
+    }
+
+    .status {
+      font-size: 0.95rem;
+      color: var(--accent-soft);
+      opacity: 0.8;
+    }
+
+    .controls {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: var(--accent-soft);
+    }
+
+    .login-btn {
+      padding: 0.8rem 1.6rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(7, 5, 22, 0.96);
+      color: var(--accent);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .login-btn span.icon {
+      display: inline-block;
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+    }
+
+    .eq-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.25rem;
+      height: 24px;
+    }
+
+    .eq-bar {
+      flex: 1;
+      max-width: 6px;
+      background: linear-gradient(to top, #150f2c, var(--accent-strong));
+      opacity: 0.95;
+      border-radius: 999px;
+      transform-origin: bottom;
+      transform: scaleY(0.3);
+    }
+
+    @media (max-width: 900px) {
+      .frame {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+      }
+
+      .album-art-wrapper {
+        order: 2;
+      }
+
+      .meta {
+        order: 3;
+        text-align: center;
+        align-items: center;
+      }
+
+      .track {
+        font-size: 1.7rem;
+      }
+      .artist {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="header">Now Playing</div>
+
+    <div class="album-art-wrapper">
+      <div class="album-art" id="albumArt">
+        <div class="album-placeholder" id="albumPlaceholder">
+          <div>Nothing playing…</div>
+          <span>Start Spotify on any device</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="label">Track</div>
+      <div class="track" id="trackName">—</div>
+
+      <div class="label" style="margin-top: 0.75rem;">Artist</div>
+      <div class="artist" id="artistName">—</div>
+
+      <div class="status" id="statusText">
+        Connect to Spotify and start playing music.
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="login-btn" id="loginButton">
+        <span class="icon"></span>
+        <span>Login with Spotify</span>
+      </button>
+      <div class="eq-bars" id="eqBars">
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+      </div>
+    </div>
+  </div>
+
+ <script>
+  // ==== CONFIG: PUT YOUR DATA HERE ====
+  const CLIENT_ID = "2d65a25b08094613b3a685c6f9a513f2";
+
+  // Use this page's URL as redirect; must match one of the Redirect URIs in Spotify app settings
+  const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+  const SCOPES = [
+    "user-read-playback-state",
+    "user-read-currently-playing"
+  ];
+
+  // ==== PKCE HELPERS (for Authorization Code with PKCE) ====
+  function generateRandomString(length) {
+    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const values = window.crypto.getRandomValues(new Uint8Array(length));
+    return values.reduce((acc, x) => acc + possible[x % possible.length], "");
+  }
+
+  async function sha256(plain) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    return window.crypto.subtle.digest("SHA-256", data);
+  }
+
+  function base64encode(input) {
+    return btoa(String.fromCharCode(...new Uint8Array(input)))
+      .replace(/=/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+  }
+
+  async function createCodeChallenge(codeVerifier) {
+    const hashed = await sha256(codeVerifier);
+    return base64encode(hashed);
+  }
+
+  // ==== UI HANDLES ====
+  const loginButton = document.getElementById("loginButton");
+  const trackNameEl = document.getElementById("trackName");
+  const artistNameEl = document.getElementById("artistName");
+  const statusTextEl = document.getElementById("statusText");
+  const albumArtEl = document.getElementById("albumArt");
+  const albumPlaceholderEl = document.getElementById("albumPlaceholder");
+  const eqBars = Array.from(document.querySelectorAll(".eq-bar"));
+
+  let accessToken = null;
+  let pollInterval = null;
+
+  // ==== AUTH FLOW (Authorization Code with PKCE) ====
+  async function loginWithSpotify() {
+    const codeVerifier = generateRandomString(64);
+    const codeChallenge = await createCodeChallenge(codeVerifier);
+    const state = generateRandomString(16);
+
+    // Save verifier & state locally
+    window.localStorage.setItem("spotify_code_verifier", codeVerifier);
+    window.localStorage.setItem("spotify_auth_state", state);
+
+    const authUrl = new URL("https://accounts.spotify.com/authorize");
+
+    const params = {
+      response_type: "code",
+      client_id: CLIENT_ID,
+      scope: SCOPES.join(" "),
+      redirect_uri: REDIRECT_URI,
+      state,
+      code_challenge_method: "S256",
+      code_challenge: codeChallenge
+    };
+
+    authUrl.search = new URLSearchParams(params).toString();
+    window.location = authUrl.toString();
+  }
+
+  async function exchangeCodeForToken(code, stateFromUrl) {
+    const savedState = window.localStorage.getItem("spotify_auth_state");
+    const codeVerifier = window.localStorage.getItem("spotify_code_verifier");
+
+    if (!codeVerifier) {
+      console.error("Missing code_verifier in localStorage");
+      setLoggedOutUI("Auth error. Try logging in again.");
+      return false;
+    }
+
+    if (!savedState || savedState !== stateFromUrl) {
+      console.error("State mismatch");
+      setLoggedOutUI("Auth error. Try logging in again.");
+      return false;
+    }
+
+    const body = new URLSearchParams({
+      client_id: CLIENT_ID,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: codeVerifier
+    });
+
+    const res = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Token exchange error:", data);
+      setLoggedOutUI("Auth error. Try logging in again.");
+      return false;
+    }
+
+    accessToken = data.access_token;
+    const expiresIn = data.expires_in || 3600;
+    const expiryTime = Date.now() + expiresIn * 1000;
+
+    window.localStorage.setItem("spotify_access_token", accessToken);
+    window.localStorage.setItem("spotify_token_expires", expiryTime.toString());
+
+    // Clean up query params from URL
+    const newUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, newUrl);
+
+    // Optional: cleanup PKCE bits
+    window.localStorage.removeItem("spotify_auth_state");
+    window.localStorage.removeItem("spotify_code_verifier");
+
+    return true;
+  }
+
+  function tokenExpired() {
+    const expiry = window.localStorage.getItem("spotify_token_expires");
+    if (!expiry) return true;
+    const expiryTime = parseInt(expiry, 10);
+    return isNaN(expiryTime) || Date.now() > expiryTime;
+  }
+
+  // ==== SPOTIFY NOW PLAYING POLLING ====
+  async function fetchCurrentlyPlaying() {
+    if (!accessToken) return;
+
+    try {
+      const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", {
+        headers: {
+          Authorization: "Bearer " + accessToken
+        }
+      });
+
+      if (res.status === 204) {
+        // No content - nothing playing
+        showNothingPlaying();
+        return;
+      }
+
+      if (res.status === 401) {
+        // Token expired or invalid
+        window.localStorage.removeItem("spotify_access_token");
+        window.localStorage.removeItem("spotify_token_expires");
+        accessToken = null;
+        stopPolling();
+        setLoggedOutUI("Session expired. Tap 'Login with Spotify' again.");
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("Spotify error:", await res.text());
+        return;
+      }
+
+      const data = await res.json();
+      if (!data || !data.item) {
+        showNothingPlaying();
+        return;
+      }
+
+      updateTrackUI(data);
+    } catch (err) {
+      console.error("Error fetching currently playing:", err);
+    }
+  }
+
+  function updateTrackUI(data) {
+    const track = data.item;
+    const isPlaying = data.is_playing;
+    const trackName = track.name;
+    const artists = track.artists.map(a => a.name).join(", ");
+    const albumImages = track.album && track.album.images ? track.album.images : [];
+    const bestImage = albumImages[0];
+
+    trackNameEl.textContent = trackName;
+    artistNameEl.textContent = artists;
+
+    if (bestImage) {
+      if (!albumArtEl.querySelector("img")) {
+        const img = document.createElement("img");
+        albumArtEl.appendChild(img);
+      }
+      const img = albumArtEl.querySelector("img");
+      img.src = bestImage.url;
+      img.alt = trackName + " - " + artists;
+      albumPlaceholderEl.style.display = "none";
+    } else {
+      albumPlaceholderEl.style.display = "flex";
+      const img = albumArtEl.querySelector("img");
+      if (img) img.remove();
+    }
+
+    statusTextEl.textContent = isPlaying
+      ? "Playing on: " + (data.device ? data.device.name : "Spotify")
+      : "Paused";
+
+    animateEqBars(isPlaying);
+  }
+
+  function showNothingPlaying() {
+    trackNameEl.textContent = "—";
+    artistNameEl.textContent = "—";
+    albumPlaceholderEl.style.display = "flex";
+    const img = albumArtEl.querySelector("img");
+    if (img) img.remove();
+    statusTextEl.textContent = "No active playback. Start Spotify on any device.";
+    animateEqBars(false);
+  }
+
+  function animateEqBars(isPlaying) {
+    eqBars.forEach(bar => {
+      if (!isPlaying) {
+        bar.style.transform = "scaleY(0.3)";
+        return;
+      }
+      const scale = 0.3 + Math.random() * 0.7;
+      bar.style.transform = `scaleY(${scale.toFixed(2)})`;
+    });
+  }
+
+  function startPolling() {
+    if (pollInterval) return;
+    pollInterval = setInterval(fetchCurrentlyPlaying, 5000);
+    fetchCurrentlyPlaying();
+  }
+
+  function stopPolling() {
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      pollInterval = null;
+    }
+  }
+
+  function setLoggedOutUI(message) {
+    loginButton.style.display = "inline-flex";
+    statusTextEl.textContent = message || "Connect to Spotify and start playing music.";
+    showNothingPlaying();
+  }
+
+  function setLoggedInUI() {
+    loginButton.style.display = "none";
+    statusTextEl.textContent = "Connected. Start playing any track on Spotify.";
+  }
+
+  // ==== INIT FLOW ====
+  (async function init() {
+    loginButton.addEventListener("click", loginWithSpotify);
+
+    // 1) Check if redirected back with ?code=...
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    const state = urlParams.get("state");
+    const error = urlParams.get("error");
+
+    if (error) {
+      console.error("Spotify auth error:", error);
+      setLoggedOutUI("Auth error. Try logging in again.");
+      return;
+    }
+
+    if (code) {
+      const ok = await exchangeCodeForToken(code, state);
+      if (!ok) return;
+    }
+
+    // 2) Check stored token
+    const storedToken = window.localStorage.getItem("spotify_access_token");
+
+    if (!storedToken || tokenExpired()) {
+      setLoggedOutUI();
+      return;
+    }
+
+    accessToken = storedToken;
+    setLoggedInUI();
+    startPolling();
+  })();
+</script>
+</body>
+</html>
