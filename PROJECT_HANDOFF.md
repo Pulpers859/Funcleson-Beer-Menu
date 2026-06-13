@@ -10,8 +10,8 @@
 
 ## Repo State
 - Stable branch: `main`
-- Working branch: `dev`
-- Expected default branch for normal work: `dev`
+- Working branch: `main`
+- Expected default branch for normal work: `main`
 - Sync-first rule: Before normal work, fetch from the remote first. If the working tree is clean and the active branch tracks the expected upstream, pull with --ff-only before editing.
 
 ## Architecture / Product Notes
@@ -34,7 +34,8 @@
 - Be honest and direct.
 - Prefer architecture/data-flow fixes over hacks.
 - Handle Git operations when appropriate.
-- Keep normal work on `dev`, not `main`.
+- Keep normal work on `main`.
+- Do not create side branches or PR-based workflows unless the user explicitly asks for them.
 
 ## Communication Style
 - Warm, collaborative, calm, disciplined
@@ -56,7 +57,7 @@ Project: Funcleson Video Board
 Active repo path: C:\Dev\Funcleson Video Board
 GitHub remote: https://github.com/Pulpers859/Funcleson-Beer-Menu.git
 Stable branch: main
-Working branch: dev
+Working branch: main
 
 Important:
 - The entire app is a single index.html file with inline CSS/JS.
@@ -64,6 +65,8 @@ Important:
 - The display target is a TV/monitor via Yodeck — optimize for that viewport.
 - Runtime QR image now lives under `assets/qr/`.
 - Large media files (beer posters, PDFs) live under `support/` and are NOT tracked in git.
+- Use `main` as the only normal branch for commits and pushes.
+- Do not create side branches and do not use PRs unless the user explicitly requests that workflow.
 - Use the standard workflow: investigate, fix root causes, audit adjacent risks, handle Git.
 - Before starting normal work, fetch from origin and sync the active branch first.
 ```

@@ -10,11 +10,14 @@
 - Source of truth: `C:\Dev\Funcleson Video Board`
 - GitHub: `https://github.com/Pulpers859/Funcleson-Beer-Menu.git`
 - Stable branch: `main`
-- Working branch: `dev`
+- Working branch: `main`
 - Fetch and sync before normal work
 
 ## Rules
-- Keep work on `dev`, not `main`
+- Use `main` as the only normal working and push branch.
+- Do not create side branches.
+- Do not open or rely on pull requests.
+- Only use another branch if the user explicitly asks for one in that session.
 - Fix root causes, not surface symptoms
 - Large media files (.afdesign, .png posters, PDFs) live in the directory but are NOT tracked in git
 - The app is one self-contained HTML file — preserve that architecture unless there's a strong reason to split
