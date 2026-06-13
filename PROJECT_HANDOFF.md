@@ -17,10 +17,14 @@
 ## Architecture / Product Notes
 - Main product purpose: Digital beer menu board for Funcleson Funkatorium, displayed on a TV/monitor via Yodeck
 - Key files: `index.html` (the entire app — HTML/CSS/JS in one file)
+- Runtime asset: `assets/qr/Funcleson-Funkatorium-QR-Code.PNG`
 - Data source: Google Sheets CSV (fetched at runtime for beer list)
 - Features: beer menu columns, Untappd check-in ticker, photo album, QR code, Spotify jukebox integration
 - Display target: TV/monitor via Yodeck video board system
-- Supplementary files in repo directory (not tracked in git): beer poster designs (.afdesign/.png), PDF guides, photo album assets
+- Supplementary files:
+  - `support/beer-posters/` — poster designs (.afdesign/.png), not tracked in git
+  - `support/docs/` — PDF/docx guides, not tracked in git
+  - `support/reference-assets/photo-drop-qr.png` — tracked reference image, not used by the live board
 
 ## How The Agent Should Operate
 - Inspect before assuming.
@@ -58,7 +62,8 @@ Important:
 - The entire app is a single index.html file with inline CSS/JS.
 - It fetches beer data from a Google Sheets CSV at runtime.
 - The display target is a TV/monitor via Yodeck — optimize for that viewport.
-- Large media files (beer posters, PDFs) are in the directory but NOT tracked in git.
+- Runtime QR image now lives under `assets/qr/`.
+- Large media files (beer posters, PDFs) live under `support/` and are NOT tracked in git.
 - Use the standard workflow: investigate, fix root causes, audit adjacent risks, handle Git.
 - Before starting normal work, fetch from origin and sync the active branch first.
 ```

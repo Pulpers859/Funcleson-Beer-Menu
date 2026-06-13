@@ -15,12 +15,12 @@ Desktop.ini
 *.mov
 
 # Exceptions — track specific images needed by the app
-!Funcleson-Funkatorium-QR-Code.PNG
-!photo-drop-qr.png
+!assets/qr/Funcleson-Funkatorium-QR-Code.PNG
+!support/reference-assets/photo-drop-qr.png
 
-# Untracked media/docs folders
-Beer Posters/
-docs/
+# Untracked support folders
+support/beer-posters/
+support/docs/
 
 # Local config / secrets
 .env

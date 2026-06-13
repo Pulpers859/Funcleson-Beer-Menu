@@ -22,7 +22,9 @@
 
 ## Structure
 - `index.html` — the live app (self-contained HTML/CSS/JS)
-- `Funcleson-Funkatorium-QR-Code.PNG` — QR code used by the app (referenced in index.html)
+- `assets/qr/Funcleson-Funkatorium-QR-Code.PNG` — QR code used by the app (referenced in index.html)
 - `prototypes/` — style experiments (jukebox variants, untappd ticker)
-- `docs/` — reference PDFs and guides (not tracked in git)
-- `Beer Posters/` — poster designs (not tracked in git)
+- `support/` — non-runtime project material
+- `support/docs/` — reference PDFs and guides (not tracked in git)
+- `support/beer-posters/` — poster designs (not tracked in git)
+- `support/reference-assets/photo-drop-qr.png` — tracked reference image, not part of the live board
