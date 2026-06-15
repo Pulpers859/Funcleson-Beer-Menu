@@ -35,7 +35,16 @@
 - Prefer architecture/data-flow fixes over hacks.
 - Handle Git operations when appropriate.
 - Keep normal work on `main`.
+- If you make code or tracked-file changes, commit them and push them to `origin/main` before ending the task unless the user explicitly tells you not to.
+- Do not leave intended repo updates only on the local machine.
 - Do not create side branches or PR-based workflows unless the user explicitly asks for them.
+- If the user references prior work by another AI agent, another machine, another terminal, or another conversation, do not assume the current diff or latest visible commit tells the full story.
+- Before making new edits, rebases, resets, merges, or sync claims in that case, perform an external-agent reconciliation pass:
+  - Inspect any outside artifact the user provides, such as a transcript, chat export, screenshot, commit list, or claimed fix summary.
+  - Compare what that agent claimed to change against the current local files, the local git history, and the current `main` branch on GitHub.
+  - Tell the user plainly whether each claimed change is present, missing, partially landed, or overwritten.
+  - Only after that comparison should you decide whether to pull, rebase, merge, patch missing work, or leave newer work intact.
+  - Do not say the repo is fully assessed or in sync until this reconciliation step is complete whenever outside-agent work is part of the context.
 
 ## Communication Style
 - Warm, collaborative, calm, disciplined
@@ -66,7 +75,9 @@ Important:
 - Runtime QR image now lives under `assets/qr/`.
 - Large media files (beer posters, PDFs) live under `support/` and are NOT tracked in git.
 - Use `main` as the only normal branch for commits and pushes.
+- If you make code or tracked-file changes, commit them and push them to `origin/main` before ending the task unless the user explicitly says not to.
 - Do not create side branches and do not use PRs unless the user explicitly requests that workflow.
 - Use the standard workflow: investigate, fix root causes, audit adjacent risks, handle Git.
 - Before starting normal work, fetch from origin and sync the active branch first.
+- If outside-agent work is referenced, perform an external-agent reconciliation pass before new edits, rebases, resets, merges, or sync claims.
 ```
