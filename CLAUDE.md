@@ -18,6 +18,7 @@
 - Do not create side branches.
 - Do not open or rely on pull requests.
 - Only use another branch if the user explicitly asks for one in that session.
+- For risky AI-agent experiments, use a detached sandbox worktree via `tools/New-AgentSandbox.ps1`; do not commit or push from the sandbox.
 - If you make code or tracked-file changes, you must commit them and push them to `origin/main` before ending the task unless the user explicitly tells you not to.
 - Do not leave code changes only in the local working tree when the intended outcome is for the repo to stay current across machines.
 - Fix root causes, not surface symptoms

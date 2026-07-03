@@ -38,6 +38,7 @@
 - If you make code or tracked-file changes, commit them and push them to `origin/main` before ending the task unless the user explicitly tells you not to.
 - Do not leave intended repo updates only on the local machine.
 - Do not create side branches or PR-based workflows unless the user explicitly asks for them.
+- For risky, creative, or parallel agent work, use a detached sandbox worktree via `tools/New-AgentSandbox.ps1`; do not create side branches or commit/push from the sandbox. See `docs/agent-sandbox-workflow.md`.
 - If the user references prior work by another AI agent, another machine, another terminal, or another conversation, do not assume the current diff or latest visible commit tells the full story.
 - Before making new edits, rebases, resets, merges, or sync claims in that case, perform an external-agent reconciliation pass:
   - Inspect any outside artifact the user provides, such as a transcript, chat export, screenshot, commit list, or claimed fix summary.
@@ -77,6 +78,7 @@ Important:
 - Use `main` as the only normal branch for commits and pushes.
 - If you make code or tracked-file changes, commit them and push them to `origin/main` before ending the task unless the user explicitly says not to.
 - Do not create side branches and do not use PRs unless the user explicitly requests that workflow.
+- For risky layout or integration experiments, use a detached sandbox worktree via `tools/New-AgentSandbox.ps1`; final integration still happens on `main`.
 - Use the standard workflow: investigate, fix root causes, audit adjacent risks, handle Git.
 - Before starting normal work, fetch from origin and sync the active branch first.
 - If outside-agent work is referenced, perform an external-agent reconciliation pass before new edits, rebases, resets, merges, or sync claims.
