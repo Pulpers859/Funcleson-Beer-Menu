@@ -15,7 +15,7 @@ For risky experiments, create a detached worktree:
 Review the sandbox diff, then integrate only selected changes back into the main checkout:
 
 ```powershell
-git -C "C:\Dev\Funcleson Video Board-agent-sandboxes\menu-layout" diff
+git -C "C:\Dev\.agent-sandboxes\Funcleson Video Board\menu-layout" diff
 ```
 
 Remove the sandbox when finished:
